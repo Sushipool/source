@@ -11,6 +11,8 @@ const TAG = 'Config';
  * @property {{enabled: boolean, threads: string|number, throttleAfter: number, throttleWait: number, extraData: string}} miner
  * @property {{enabled: boolean, host: string, port: number}} poolMining
  * @property {{seed: string, address: string}} wallet
+ * @property {int} threads
+ * @property {string} address
  */
 
 const DEFAULT_CONFIG = /** @type {Config} */ {
@@ -139,7 +141,7 @@ if (!validateObjectType(DEFAULT_CONFIG)) {
  */
 function readFromFile(file, oldConfig = merge({}, DEFAULT_CONFIG)) {
     if (typeof file === 'undefined') {
-        Log.e(TAG, 'No configuration file given');
+        Log.w(TAG, 'No configuration file given');
         return false;
     }
     try {

@@ -18,6 +18,29 @@ if (!config) {
     }
 }
 
+let pool_host;
+if (!argv.hasOwnProperty('test')){
+    pool_host = 'eu.sushipool.com';
+} else {
+    Nimiq.Log.w('----- YOU ARE CONNECTING TO TESTNET -----');
+    pool_host = 'eu-test.sushipool.com';
+    config.network = 'test';
+}
+
+config = Object.assign(config, argv);
+config.poolMining.enabled = true;
+config.poolMining.host = pool_host;
+config.poolMining.port = 443;
+config.miner.enabled = true;
+if(config.hasOwnProperty('threads')){
+    config.miner.threads = config.threads;
+    delete config.threads;
+}
+if (typeof config.miner.threads !== 'number' && config.miner.threads !== 'auto') {
+    Nimiq.Log.e(TAG, 'Specify a valid thread number');
+    process.exit(1);
+}
+
 // for setting extradata automatically
 function guid() { // from https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
   function s4() {
@@ -42,11 +65,11 @@ function humanHashes(bytes) {
     return bytes.toFixed(1)+' '+units[u];
 }
 (async () => {
-
     Nimiq.Log.i(TAG, `SushiPool Miner starting.`);
     Nimiq.Log.i(TAG, `- network          = ${config.network}`);
     Nimiq.Log.i(TAG, `- no. of threads   = ${config.miner.threads}`);
     Nimiq.Log.i(TAG, `- pool server      = ${config.poolMining.host}:${config.poolMining.port}`);
+    Nimiq.Log.i(TAG, `- address      = ${config.address}`);
     Nimiq.Log.i(TAG, `Please wait while we establish consensus.`);
 
     Nimiq.GenesisConfig.init(Nimiq.GenesisConfig.CONFIGS[config.network]);
@@ -58,11 +81,11 @@ function humanHashes(bytes) {
     $.network = $.consensus.network;
 
     $.walletStore = await new Nimiq.WalletStore();
-    if (!config.wallet.address) {
+    if (!config.address) {
         // Load or create default wallet.
         $.wallet = await $.walletStore.getDefault();
     } else {
-        const address = Nimiq.Address.fromUserFriendlyAddress(config.wallet.address);
+        const address = Nimiq.Address.fromUserFriendlyAddress(config.address);
         $.wallet = {address: address};
         // Check if we have a full wallet in store.
         const wallet = await $.walletStore.get(address);
@@ -72,15 +95,15 @@ function humanHashes(bytes) {
         }
     }
 
-    const addresses = await $.walletStore.list();
     const account = await $.accounts.get($.wallet.address);
     Nimiq.Log.i(TAG, `Wallet initialized for address ${$.wallet.address.toUserFriendlyAddress()}.`
         + ` Balance: ${Nimiq.Policy.satoshisToCoins(account.balance)} NIM`);
     Nimiq.Log.i(TAG, `Blockchain state: height=${$.blockchain.height}, headHash=${$.blockchain.headHash}`);
 
     // connect to pool
-    const extraData = Nimiq.BufferUtils.fromAscii(TAG + '-' + guid());
+    let extraData = Nimiq.BufferUtils.fromAscii(TAG + '-' + guid());
     const deviceId = Nimiq.BasePoolMiner.generateDeviceId(networkConfig);
+
     $.miner = new Nimiq.SmartPoolMiner($.blockchain, $.accounts, $.mempool, $.network.time, $.wallet.address, deviceId, extraData);
 
     $.consensus.on('established', () => {
