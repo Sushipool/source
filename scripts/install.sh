@@ -16,21 +16,21 @@ echo ""
 
 #Get Settings
 
-echo 'Using NimiqPool.com'
+echo 'Using eu.sushipool.com at port 443.'
 usePool="--pool=eu.sushipool.com:443"
 nimiqScript="mine.sh"
+
 echo 'Please enter the number of threads: '
 read nimiqThreads
-
 
 echo 'Enter Wallet Address (NOT SEED): '
 read nimiqAddress
 
-echo 'Enter Extra-Data Field (Optional,Useful for multiple miners on the same Address): '
+echo 'Enter Extra-Data Field (Optional, useful for multiple miners on the same address): '
 read nimiqExtra
 
-
 #Required Setup
+echo 'Updating packages. Please enter your sudo password if prompted.'
 sudo apt-get update
 sudo apt-get -y upgrade
 
@@ -46,16 +46,14 @@ yarn global add gulp
 
 git clone https://github.com/nimiq-network/core
 
-
 nimiqDoD="--dumb"
-
 
 #Generate Mining Runscript
 touch $nimiqScript
 chmod +x $nimiqScript
 
-echo "cd core && git pull && yarn " > $nimiqScript 
+echo "cd core && git pull && yarn " > $nimiqScript
 
-echo "cd clients/nodejs/" >> $nimiqScript 
+echo "cd clients/nodejs/" >> $nimiqScript
 
 echo "env UV_THREADPOOL_SIZE=$nimiqThreads node index.js $usePool --wallet-address=\"$nimiqAddress\" --miner=$nimiqThreads --statistics=10 $nimiqDoD" >> $nimiqScript
