@@ -1,4 +1,5 @@
- #!/bin/bash
+#!/bin/bash
+# Easy Setup Script for NodeJS Nimiq Miner
 echo "  _________            .__    .__                       "
 echo "/   _____/__ __  _____|  |__ |__|                      "
 echo "\_____  \|  |  \/  ___/  |  \|  |                      "
@@ -12,34 +13,49 @@ echo "|     ___/  _ \ /  _ \|  |                             "
 echo "|    |  (  <_> |  <_> )  |__                           "
 echo "|____|   \____/ \____/|____/                           "
 echo ""
-echo 'Checking dependencies...'
-command -v unzip >/dev/null 2>&1 || { echo 'Installing unzip'; apt -qq update && apt install unzip -y; }
-command -v git >/dev/null 2>&1 || { echo 'Installing git'; apt -qq update && apt install git -y; }
 
-if ! [ -x "$(command -v git)" ]; then
-  echo 'Installing node'
-  curl -sL https://deb.nodesource.com/setup_9.x | bash
-  apt-get -y nodejs build-essential git
+#Get Settings
 
-fi
-echo "Installing yarn"
-npm install -g yarn > /dev/null
-echo "Installing gulp"
-npm install -g gulp > /dev/null
+echo 'Using NimiqPool.com'
+usePool="--pool=eu.sushipool.com:443"
+nimiqScript="mine.sh"
+echo 'Please enter the number of threads: '
+read nimiqThreads
 
-read -p "Enter nimiq address: `echo $'\n> '`" NIMIQ_ADDR
 
-echo "You entered the following address:"
-echo  $NIMIQ_ADDR
-read -p "Is that correct? [y/N]" REPLY
-echo ""
-REPLY=${REPLY,,}
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    read -p "Enter the number of threads: `echo $'\n> '`" THREADS
-	if ! [ "$THREADS" -eq "$THREADS" ] 2> /dev/null
-	then
-		echo "Sorry integers only"
-		exit
-	fi
-	echo "Going to use $THREADS threads"
-fi
+echo 'Enter Wallet Address (NOT SEED): '
+read nimiqAddress
+
+echo 'Enter Extra-Data Field (Optional,Useful for multiple miners on the same Address): '
+read nimiqExtra
+
+
+#Required Setup
+sudo apt-get update
+sudo apt-get -y upgrade
+
+#Install requirements
+sudo apt-get install -y curl git build-essential python
+
+#Setup NodeJS
+curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+sudo npm install -g yarn
+yarn global add gulp
+
+git clone https://github.com/nimiq-network/core
+
+
+nimiqDoD="--dumb"
+
+
+#Generate Mining Runscript
+touch $nimiqScript
+chmod +x $nimiqScript
+
+echo "cd core && git pull && yarn " > $nimiqScript 
+
+echo "cd clients/nodejs/" >> $nimiqScript 
+
+echo "env UV_THREADPOOL_SIZE=$nimiqThreads node index.js $usePool --wallet-address=\"$nimiqAddress\" --miner=$nimiqThreads --statistics=10 $nimiqDoD" >> $nimiqScript
