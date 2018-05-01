@@ -54,4 +54,4 @@ rm -rf ${OUTPUT_DIR}
 
 echo
 echo 'Successfully created:'
-echo ${OUTPUT_DIR}/${PACKAGE_DIR}.tar.gz
+echo ${BINARIES_DIR}/${PACKAGE_DIR}.tar.gz
