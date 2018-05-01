@@ -34,9 +34,9 @@ $ npm install -g pkg
 Then change to the `scripts` directory and run the following, depending on your platform:
 
 ```
-$ ./build.sh node9 macos x64 # macos 64-bit
-$ ./build.sh node9 linux x64 # linux 64-bit
-$ ./build.sh node9 win x64   # win 64-bit
+$ ./build.sh node9 macos x64 'tag' # macos 64-bit
+$ ./build.sh node9 linux x64 'tag '# linux 64-bit
+$ ./build.sh node9 win x64 'tag'  # win 64-bit
 ```
-
-The output binary for that platform can be found at `../miner/binaries`. Run it the same way as in step (1).
+where 'tag' is any string that is used to tag this release, e.g. 'standard', 'fast, 'extreme'
+The output for the command above can be found at `../../binaries`. Run it the same way as in step (1).

@@ -20,7 +20,7 @@ Nimiq.Log.instance.level = 'info';
 
 let config = readFromFile(argv.config);
 if (!config) {
-    Nimiq.Log.i(TAG, `Trying ${defaultConfigFile}`);    
+    Nimiq.Log.i(TAG, `Trying ${defaultConfigFile}`);
     config = readFromFile(defaultConfigFile);
     if (!config) {
         Nimiq.Log.i(TAG, 'No 🍣 configuration file found. Please answer the following questions:');
