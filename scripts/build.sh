@@ -28,7 +28,7 @@ elif [ "$PLATFORM" = "win" ]; then
     cp ../miner/node_modules/uws/uws_win32_59.node ${OUTPUT_DIR}
 fi
 
-cp ../miner/sushipool.conf ${OUTPUT_DIR}
+# cp ../miner/sushipool.conf ${OUTPUT_DIR}
 
 echo
 echo 'Successfully created:'

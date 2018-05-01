@@ -23,6 +23,7 @@
     "lodash.merge": "^4.6.1",
     "minimist": "^1.2.0",
     "mysql2": "^1.5.3",
+    "readline-sync": "^1.4.9",
     "uws": "^9.147.0"
   }
 }
