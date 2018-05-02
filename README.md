@@ -10,16 +10,13 @@ $ yarn
 $ ./sushipool
 ```
 
-By default, configurations will be read from `sushipool.conf`. Alternatively you can also specify a different config file when starting the miner:
+By default, configurations will be read from `sushipool.conf` (a JSON file). If no configuration file is found, the script will prompt the user to enter parameter values before saving them into a configuration file. Alternatively you can also specify a different config file when starting the miner. The `--test` parameter can be passed to run the script on the testnet, e.g.
 
 ```
-$ ./sushipool --config=sushipool.conf
+$ ./sushipool --config=sushipool.conf --test
 ```
 
-If you are running the miner for the first time, it will download the full consensus data for the network.
-This might take a while (you can also copy the `main-light-consensus` or `test-light-consensus` from elsewhere if you have them).
-Statistics will be printed every 5 seconds, so we don't need to specify that parameter anymore.
-Similarly, the `--extraData` parameter is now set automatically.
+The miner script establishes light consensus with the network. If you are running it for the first time, it might take a while to download that, so you can copy the `main-light-consensus` or `test-light-consensus` folders from elsewhere if you have them. Statistics will be printed every 5 seconds, so we don't need to specify that parameter anymore.
 
 ### 2. How to build stand-alone binaries.
 
