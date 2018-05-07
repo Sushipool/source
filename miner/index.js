@@ -1,20 +1,26 @@
 // https://stackoverflow.com/questions/17554688/has-anyone-tried-using-the-uv-threadpool-size-environment-variable
-process.env.UV_THREADPOOL_SIZE = 100;
+const os = require('os');
+const maxThreads = os.cpus().length;
+process.env.UV_THREADPOOL_SIZE = maxThreads;
 
 const Nimiq = require('@nimiq/core');
 const argv = require('minimist')(process.argv.slice(2));
 const readFromFile = require('./src/Config.js');
 const readlineSync = require('readline-sync');
-const os = require('os');
 var fs = require('fs');
 
 const START = Date.now();
 const TAG = 'SushiPool';
 const $ = {};
 const defaultConfigFile = 'sushipool.conf'
-const poolHostMain = 'eu.sushipool.com';
-const poolHostTest = 'eu-test.sushipool.com';
+
+const servers = [
+    'eu.sushipool.com',
+    'us-east.sushipool.com',
+    'asia.sushipool.com'
+]
 const poolPort = 443;
+const poolHostTest = 'eu-test.sushipool.com';
 
 Nimiq.Log.instance.level = 'info';
 
@@ -24,30 +30,15 @@ if (!config) {
     config = readFromFile(defaultConfigFile);
     if (!config) {
         Nimiq.Log.i(TAG, 'No 🍣 configuration file found. Please answer the following questions:');
-
-        const askAddress = readlineSync.question('- Enter NIMIQ address to mine to: ');
-
-        const maxThreads = os.cpus().length;
-        let askNumThreads = maxThreads;
-        if (readlineSync.keyInYN(`- Use maximum number of threads (${maxThreads})? `)) {
-            // Y, do nothing
-        } else {
-            // ask for numThreads
-            askNumThreads = readlineSync.question('- Enter the number of threads: ');
-        }
-
-        let askPoolHost = 'auto';
-        if (readlineSync.keyInYN(`- Use default pool server (${poolHostMain})? `)) {
-            // Y, do nothing
-        } else {
-            // ask for numThreads
-            askPoolHost = readlineSync.question('- Enter the pool host: ');
-        }
-
+        const askAddress = readlineSync.question('Enter Nimiq Wallet Address (e.g. NQXX .... ....): ');
+        const query = `Enter the number of threads to use for mining (max ${maxThreads}): `;
+        const askNumThreads = readlineSync.questionInt(query);
+        const options = {guide: false, cancel: false};
+        const askPoolHost = readlineSync.keyInSelect(servers, 'Select a 🍣 Sushi Server:', options);
         const ask = {
             address: askAddress,
             threads: askNumThreads,
-            server: askPoolHost
+            server: servers[askPoolHost]
         };
         const data = JSON.stringify(ask, null, 4);
         fs.writeFileSync(defaultConfigFile, data);
@@ -55,20 +46,19 @@ if (!config) {
     }
 }
 
-let poolHost;
-if (!argv.hasOwnProperty('test')){
-    poolHost = poolHostMain;
-} else {
-    Nimiq.Log.w('----- YOU ARE CONNECTING TO TESTNET -----');
-    poolHost = poolHostTest;
-    config.network = 'test';
-}
-
 config = Object.assign(config, argv);
 config.poolMining.enabled = true;
-config.poolMining.host = poolHost;
 config.poolMining.port = poolPort;
 config.miner.enabled = true;
+
+if (argv.hasOwnProperty('test')){
+    Nimiq.Log.w('----- YOU ARE CONNECTING TO TESTNET -----');
+    config.poolMining.host = poolHostTest;
+    config.network = 'test';
+} else {
+    config.poolMining.host = config.server;
+    config.network = 'main';
+}
 if(config.hasOwnProperty('threads')){
     config.miner.threads = config.threads;
     delete config.threads;
