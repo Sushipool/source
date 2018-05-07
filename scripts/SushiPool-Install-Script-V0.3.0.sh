@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 echo "  _________            .__    .__                       "
 echo "/   _____/__ __  _____|  |__ |__|                      "
@@ -25,6 +25,7 @@ while read -p "Enter Nimiq Wallet Address (e.g. NQXX .... ....): `echo $'\n> '`"
 done
 
 echo
+
 NUM_CORES=$(grep -c ^processor /proc/cpuinfo)
 while read -p "Enter the number of threads to use for mining (max ${NUM_CORES}): `echo $'\n> '`" THREADS; do
     if ! [ "$THREADS" -eq "$THREADS" ] 2> /dev/null; then
@@ -34,28 +35,39 @@ while read -p "Enter the number of threads to use for mining (max ${NUM_CORES}):
 	fi
 done
 
-POOLSERVER=''
 POOLSERVER_EU='eu.sushipool.com'
-POOLSERVER_US='us.sushipool.com'
-POOLPORT=443
+POOLSERVER_US='us-east.sushipool.com'
+POOLSERVER_ASIA='asia.sushipool.com'
 
 echo
 echo "🍣 Sushi Servers:"
 echo "1. ${POOLSERVER_EU}"
 echo "2. ${POOLSERVER_US}"
+echo "3. ${POOLSERVER_ASIA}"
+
+POOLSERVER=''
+POOLPORT=443
 while read -p "Enter the pool server nearest to you: `echo $'\n> '`" pool; do
     if ! [ "$pool" -eq "$pool" ] 2> /dev/null; then
-		echo "Please select a valid server (1 or 2)."
+        echo "Please select a valid server (1, 2 or 3)."
     else
-        if [ "$pool" -eq 1 ]; then
-            POOLSERVER=${POOLSERVER_EU}
-            break
-        elif [ "$pool" -eq "2" ]; then
-            POOLSERVER=${POOLSERVER_US}
-            break
-        else
-            echo "Please select a valid server (1 or 2)."
-        fi
+        case $pool in
+        1)
+          POOLSERVER=${POOLSERVER_EU}
+          break
+          ;;
+        2)
+          POOLSERVER=${POOLSERVER_US}
+          break
+          ;;
+        3)
+          POOLSERVER=${POOLSERVER_ASIA}
+          break
+          ;;
+        *)
+          echo "Please select a valid server (1, 2 or 3)."
+          ;;
+        esac
 	fi
 done
 
@@ -83,7 +95,6 @@ yarn build
 echo
 echo 'Generating mining script (mine.sh)'
 cd ..
-POOL='eu.sushipool.com:443'
 STATISTICS=1
 echo '#!/bin/bash
 UV_THREADPOOL_SIZE='"${THREADS}"' ./core/clients/nodejs/nimiq --dumb --pool='"${POOLSERVER}:${POOLPORT}"' --miner='"${THREADS}"' --wallet-address="'"${NIMIQ_ADDR}"'" --statistics='"${STATISTICS}"'' > mine.sh
