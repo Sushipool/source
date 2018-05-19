@@ -9,10 +9,12 @@ class SushiPoolMiner extends BasePoolMiner {
      * @param {Time} time
      * @param {Address} address
      * @param {number} deviceId
-     * @param {Uint8Array} [extraData=new Uint8Array(0)]
+     * @param {string} deviceName
      */
-    constructor(blockchain, accounts, mempool, time, address, deviceId, extraData = new Uint8Array(0)) {
+    constructor(blockchain, accounts, mempool, time, address, deviceId, deviceName) {
+        let extraData = new Uint8Array(0);
         super(blockchain, accounts, mempool, time, address, deviceId, extraData);
+        this.deviceName = deviceName;
         this.on('share', (block, fullValid) => this._onBlockMined(block, fullValid));
     }
 
