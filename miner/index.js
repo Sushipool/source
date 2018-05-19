@@ -9,6 +9,7 @@ const readFromFile = require('./src/Config.js');
 const SushiPoolMiner = require('./src/SushiPoolMiner.js');
 const readlineSync = require('readline-sync');
 var fs = require('fs');
+const pjson = require('./package.json');
 
 const START = Date.now();
 const TAG = 'SushiPool';
@@ -86,7 +87,7 @@ function humanHashes(bytes) {
 }
 (async () => {
     const deviceName = config.name || os.hostname();
-    Nimiq.Log.i(TAG, `SushiPool Miner starting.`);
+    Nimiq.Log.i(TAG, `Sushipool Miner ${pjson.version} starting`);
     Nimiq.Log.i(TAG, `- network          = ${config.network}`);
     Nimiq.Log.i(TAG, `- no. of threads   = ${config.miner.threads}`);
     Nimiq.Log.i(TAG, `- pool server      = ${config.poolMining.host}:${config.poolMining.port}`);
