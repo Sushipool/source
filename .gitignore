@@ -66,3 +66,4 @@ typings/
 miner/peer-key/
 miner/test-light-consensus/
 miner/wallet/
+sushipool.conf
