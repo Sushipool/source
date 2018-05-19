@@ -6,19 +6,22 @@ process.env.UV_THREADPOOL_SIZE = maxThreads;
 const Nimiq = require('@nimiq/core');
 const argv = require('minimist')(process.argv.slice(2));
 const readFromFile = require('./src/Config.js');
+const SushiPoolMiner = require('./src/SushiPoolMiner.js');
 const readlineSync = require('readline-sync');
 var fs = require('fs');
 
 const START = Date.now();
 const TAG = 'SushiPool';
 const $ = {};
-const defaultConfigFile = 'sushipool.conf'
+const defaultConfigFile = 'sushipool.conf';
 
 const servers = [
     'eu.sushipool.com',
     'us-east.sushipool.com',
-    'asia.sushipool.com'
-]
+    'us-west.sushipool.com',
+    'asia.sushipool.com',
+    'aus.sushipool.com'
+];
 const poolPort = 443;
 const poolHostTest = 'eu-test.sushipool.com';
 
@@ -69,12 +72,12 @@ if (typeof config.miner.threads !== 'number' && config.miner.threads !== 'auto')
 }
 
 function humanHashes(bytes) {
-    var thresh = 1000;
+    let thresh = 1000;
     if(Math.abs(bytes) < thresh) {
         return bytes + ' H/s';
     }
-    var units = ['kH/s','MH/s','GH/s','TH/s','PH/s','EH/s','ZH/s','YH/s'];
-    var u = -1;
+    let units = ['kH/s','MH/s','GH/s','TH/s','PH/s','EH/s','ZH/s','YH/s'];
+    let u = -1;
     do {
         bytes /= thresh;
         ++u;
@@ -90,8 +93,8 @@ function humanHashes(bytes) {
     Nimiq.Log.i(TAG, `Please wait while we establish consensus.`);
 
     Nimiq.GenesisConfig.init(Nimiq.GenesisConfig.CONFIGS[config.network]);
-    const networkConfig = new Nimiq.DumbNetworkConfig()
-    $.consensus = await Nimiq.Consensus.light(networkConfig);
+    const networkConfig = new Nimiq.DumbNetworkConfig();
+    $.consensus = await Nimiq.Consensus.full(networkConfig);
     $.blockchain = $.consensus.blockchain;
     $.accounts = $.blockchain.accounts;
     $.mempool = $.consensus.mempool;
@@ -119,7 +122,7 @@ function humanHashes(bytes) {
 
     // connect to pool
     const deviceId = Nimiq.BasePoolMiner.generateDeviceId(networkConfig);
-    $.miner = new Nimiq.SmartPoolMiner($.blockchain, $.accounts, $.mempool, $.network.time, $.wallet.address, deviceId);
+    $.miner = new SushiPoolMiner($.blockchain, $.accounts, $.mempool, $.network.time, $.wallet.address, deviceId);
 
     $.consensus.on('established', () => {
         Nimiq.Log.i(TAG, `Connecting to pool ${config.poolMining.host} using device id ${deviceId} as a smart client.`);
