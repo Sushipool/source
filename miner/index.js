@@ -85,7 +85,7 @@ function humanHashes(bytes) {
     return bytes.toFixed(1)+' '+units[u];
 }
 (async () => {
-    const deviceName = config.name || '';
+    const deviceName = config.name || os.hostname();
     Nimiq.Log.i(TAG, `SushiPool Miner starting.`);
     Nimiq.Log.i(TAG, `- network          = ${config.network}`);
     Nimiq.Log.i(TAG, `- no. of threads   = ${config.miner.threads}`);
