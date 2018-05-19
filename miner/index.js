@@ -85,11 +85,13 @@ function humanHashes(bytes) {
     return bytes.toFixed(1)+' '+units[u];
 }
 (async () => {
+    const deviceName = config.name || '';
     Nimiq.Log.i(TAG, `SushiPool Miner starting.`);
     Nimiq.Log.i(TAG, `- network          = ${config.network}`);
     Nimiq.Log.i(TAG, `- no. of threads   = ${config.miner.threads}`);
     Nimiq.Log.i(TAG, `- pool server      = ${config.poolMining.host}:${config.poolMining.port}`);
     Nimiq.Log.i(TAG, `- address          = ${config.address}`);
+    Nimiq.Log.i(TAG, `- device name      = ${deviceName}`);
     Nimiq.Log.i(TAG, `Please wait while we establish consensus.`);
 
     Nimiq.GenesisConfig.init(Nimiq.GenesisConfig.CONFIGS[config.network]);
@@ -122,7 +124,7 @@ function humanHashes(bytes) {
 
     // connect to pool
     const deviceId = Nimiq.BasePoolMiner.generateDeviceId(networkConfig);
-    const deviceName = config.name || '';
+
     $.miner = new SushiPoolMiner($.blockchain, $.accounts, $.mempool, $.network.time, $.wallet.address, deviceId, deviceName);
 
     $.consensus.on('established', () => {

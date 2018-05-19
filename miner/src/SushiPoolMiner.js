@@ -1,5 +1,8 @@
 const Nimiq = require('@nimiq/core');
 const BasePoolMiner = Nimiq.BasePoolMiner;
+const BufferUtils = Nimiq.BufferUtils;
+const MerklePath = Nimiq.MerklePath;
+const GenesisConfig = Nimiq.GenesisConfig;
 
 class SushiPoolMiner extends BasePoolMiner {
     /**
@@ -14,7 +17,7 @@ class SushiPoolMiner extends BasePoolMiner {
     constructor(blockchain, accounts, mempool, time, address, deviceId, deviceName) {
         let extraData = new Uint8Array(0);
         super(blockchain, accounts, mempool, time, address, deviceId, extraData);
-        this.deviceName = deviceName;
+        this._deviceName = deviceName;
         this.on('share', (block, fullValid) => this._onBlockMined(block, fullValid));
     }
 
@@ -34,13 +37,14 @@ class SushiPoolMiner extends BasePoolMiner {
     }
 
     _register() {
-        Nimiq.Log.i(SushiPoolMiner, `Registering to pool using device id ${this.deviceId} as a smart client.`);
+        const deviceName = this._deviceName || '';
+        Nimiq.Log.i(SushiPoolMiner, `Registering to pool using device id ${deviceName} as a smart client.`);
         this._send({
             message: 'register',
             mode: 'smart',
             address: this._ourAddress.toUserFriendlyAddress(),
             deviceId: this._deviceId,
-            deviceName: this.deviceName || '',
+            deviceName: deviceName,
             genesisHash: BufferUtils.toBase64(GenesisConfig.GENESIS_HASH.serialize())
         });
     }
