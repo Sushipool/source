@@ -154,7 +154,7 @@ function humanHashes(bytes) {
     }
 
     $.consensus.on('established', () => {
-        Nimiq.Log.i(TAG, `Blockchain light-consensus established in ${(Date.now() - START) / 1000}s.`);
+        Nimiq.Log.i(TAG, `Blockchain consensus established in ${(Date.now() - START) / 1000}s.`);
         Nimiq.Log.i(TAG, `Current state: height=${$.blockchain.height}, totalWork=${$.blockchain.totalWork}, headHash=${$.blockchain.headHash}`);
     });
 
