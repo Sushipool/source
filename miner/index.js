@@ -96,7 +96,7 @@ function humanHashes(bytes) {
 
     Nimiq.GenesisConfig.init(Nimiq.GenesisConfig.CONFIGS[config.network]);
     const networkConfig = new Nimiq.DumbNetworkConfig();
-    $.consensus = await Nimiq.Consensus.full(networkConfig);
+    $.consensus = await Nimiq.Consensus.light(networkConfig);
     $.blockchain = $.consensus.blockchain;
     $.accounts = $.blockchain.accounts;
     $.mempool = $.consensus.mempool;
