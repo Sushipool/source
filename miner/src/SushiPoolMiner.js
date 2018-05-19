@@ -38,7 +38,7 @@ class SushiPoolMiner extends BasePoolMiner {
 
     _register() {
         const deviceName = this._deviceName || '';
-        Nimiq.Log.i(SushiPoolMiner, `Registering to pool using device id ${deviceName} as a smart client.`);
+        Nimiq.Log.i(SushiPoolMiner, `Registering to pool using device id ${this._deviceId} (${deviceName}) as a smart client.`);
         this._send({
             message: 'register',
             mode: 'smart',
