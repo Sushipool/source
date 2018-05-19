@@ -35,6 +35,7 @@ if (!config) {
     if (!config) {
         Nimiq.Log.i(TAG, 'No 🍣 configuration file found. Please answer the following questions:');
         const askAddress = readlineSync.question('Enter Nimiq Wallet Address (e.g. NQXX .... ....): ');
+        const askName = readlineSync.question(`Enter a name for this miner (Default: ${os.hostname}):`);
         const query = `Enter the number of threads to use for mining (max ${maxThreads}): `;
         const askNumThreads = readlineSync.questionInt(query);
         const options = {guide: false, cancel: false};
@@ -42,7 +43,8 @@ if (!config) {
         const ask = {
             address: askAddress,
             threads: askNumThreads,
-            server: servers[askPoolHost]
+            server: servers[askPoolHost],
+            name: askName
         };
         const data = JSON.stringify(ask, null, 4);
         fs.writeFileSync(defaultConfigFile, data);
