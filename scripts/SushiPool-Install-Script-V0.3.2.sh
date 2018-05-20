@@ -56,6 +56,6 @@ case $rc in
             exit;;
       esac;;
    *)
-      echo
+      ./sushipool
       exit;;
 esac
