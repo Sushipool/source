@@ -34,6 +34,7 @@ class SushiPoolMiner extends BasePoolMiner {
             extraDataProof: BufferUtils.toBase64((await MerklePath.compute(block.body.getMerkleLeafs(), block.body.extraData)).serialize()),
             block: fullValid ? BufferUtils.toBase64(block.serialize()) : undefined
         });
+        Nimiq.Log.i(SushiPoolMiner, `Still connected to pool`);
     }
 
     _register() {
