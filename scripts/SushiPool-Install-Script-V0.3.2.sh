@@ -52,6 +52,7 @@ case $rc in
             printf "\033c"
             echo -e "Starting SushiPool miner."
             ./sushipool
+            exit;;
         "2) Yes, in background")
             printf "\033c"
             echo -e "Starting SushiPool miner in a screen session."
@@ -60,7 +61,7 @@ case $rc in
             read -n 1 -s -r -p "Press any key to continue."
             screen ./sushipool
             exit;;
-        "2) No")
+        "3) No")
             echo -e "Installation finished. To start mining, type:"
             echo -e "${RED}$ cd source/miner${NC}"
             echo -e "${RED}$ ./sushipool${NC}"
