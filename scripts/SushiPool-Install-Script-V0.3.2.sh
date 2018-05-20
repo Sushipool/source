@@ -57,7 +57,8 @@ case $rc in
         "2) Yes, in background")
             printf "\033c"
             echo -e "Starting SushiPool miner in a screen session."
-            echo "You can close your terminal and it will continue running."
+            echo "To detach a screen session and return to your normal SSH terminal, type CTRL+A D"
+            echo "You can also close your SSH now, and the miner will continue running."
             echo -e "To return to the miner next time, type ${RED}screen -x${NC}."
             read -n 1 -s -r -p "Press any key to continue."
             screen ./sushipool
