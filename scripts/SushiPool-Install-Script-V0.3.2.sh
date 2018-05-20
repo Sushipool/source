@@ -24,8 +24,15 @@ curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 sudo apt-get update && sudo apt-get install -y yarn
 
-git clone https://git.codehou.se/sushipool/miner/source.git
-cd source/miner
+if [ -d "source" ]; then
+    echo 'Existing source directory found. Updating to latest SushiPool codes.'
+    cd source/miner
+    git pull
+else
+    echo 'Cloning the latest SushiPool codes.'
+    git clone https://git.codehou.se/sushipool/miner/source.git
+    cd source/miner
+fi
 yarn
 
 RED='\033[0;31m'
