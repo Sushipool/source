@@ -39,17 +39,22 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 echo 'startup_message off' >> ~/.screenrc
 
-ans=`DIALOG_ERROR=5 DIALOG_ESC=1 dialog --timeout 30 \
-           --menu "Do you wish to start the SushiPool miner? (this message will time-out in 30s, and the miner will start in the foreground.)" 20 73 8 \
-           "1) Yes" "Run the SushiPool miner in the background." \
-           "2) No" "Quit installation." \
+ans=`DIALOG_ERROR=5 DIALOG_ESC=1 dialog --timeout 120 \
+           --menu "Do you wish to start the SushiPool miner? (this message will time-out in 120s.)" 20 73 8 \
+           "1) Yes" "Run miner." \
+           "2) Yes, in background" "Run miner using screen." \
+           "3) No" "Quit installation." \
     3>&1 1>&2 2>&3`
 rc=$?
 case $rc in
    0) case "$ans" in
         "1) Yes")
             printf "\033c"
-            echo -e "SushiPool miner is going to start in a screen session."
+            echo -e "Starting SushiPool miner."
+            ./sushipool
+        "2) Yes, in background")
+            printf "\033c"
+            echo -e "Starting SushiPool miner in a screen session."
             echo "You can close your terminal and it will continue running."
             echo -e "To return to the miner next time, type ${RED}screen -x${NC}."
             read -n 1 -s -r -p "Press any key to continue."
@@ -63,8 +68,8 @@ case $rc in
             exit;;
       esac;;
    *)
-      printf "\033c"
-      echo -e "Starting SushiPool miner in the foreground."
-      ./sushipool
+       printf "\033c"
+       echo -e "Starting SushiPool miner."
+       ./sushipool
       exit;;
 esac
