@@ -18,7 +18,7 @@ echo 'Installing dependencies. Please enter your sudo password if prompted.'
 
 curl -sL https://deb.nodesource.com/setup_9.x -o nodesource_setup.sh
 sudo bash nodesource_setup.sh
-sudo apt-get install -y gcc g++ make nodejs dialog
+sudo apt-get install -y gcc g++ make nodejs dialog screen
 
 curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
