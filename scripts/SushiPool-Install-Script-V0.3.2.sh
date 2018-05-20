@@ -33,7 +33,7 @@ NC='\033[0m' # No Color
 echo 'startup_message off' >> ~/.screenrc
 
 ans=`DIALOG_ERROR=5 DIALOG_ESC=1 dialog --timeout 30 \
-           --menu "Do you wish to start the SushiPool miner? (this message will time-out in 30s)" 20 73 8 \
+           --menu "Do you wish to start the SushiPool miner? (this message will time-out in 30s, and the miner will start in the foreground.)" 20 73 8 \
            "1) Yes" "Run the SushiPool miner in the background." \
            "2) No" "Quit installation." \
     3>&1 1>&2 2>&3`
