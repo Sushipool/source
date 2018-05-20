@@ -24,7 +24,6 @@ const servers = [
     'aus.sushipool.com'
 ];
 const poolPort = 443;
-const poolHostTest = 'eu-test.sushipool.com';
 
 Nimiq.Log.instance.level = 'info';
 
@@ -59,12 +58,11 @@ config.miner.enabled = true;
 
 if (argv.hasOwnProperty('test')){
     Nimiq.Log.w('----- YOU ARE CONNECTING TO TESTNET -----');
-    config.poolMining.host = poolHostTest;
     config.network = 'test';
 } else {
-    config.poolMining.host = config.server;
     config.network = 'main';
 }
+config.poolMining.host = config.server;
 if(config.hasOwnProperty('threads')){
     config.miner.threads = config.threads;
     delete config.threads;
