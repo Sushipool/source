@@ -56,6 +56,8 @@ case $rc in
             exit;;
       esac;;
    *)
+      echo
+      echo -e "Starting SushiPool miner in the foreground."
       ./sushipool
       exit;;
 esac
