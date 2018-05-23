@@ -6,7 +6,6 @@ ENV SERVER='eu.sushipool.com'
 
 RUN apt-get update && apt-get -y upgrade
 RUN apt-get install -y python build-essential git
-RUN npm install -g yarn
 
 # RUN mkdir -p $HOME
 WORKDIR $HOME
