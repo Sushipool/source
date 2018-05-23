@@ -27,8 +27,22 @@ const poolPort = 443;
 
 Nimiq.Log.instance.level = 'info';
 
-let config = readFromFile(argv.config);
-if (!config) {
+if (argv.hasOwnProperty('address')) {
+    Nimiq.Log.i(TAG, 'Reading config from argv');
+    const askAddress = argv['address'];
+    const askNumThreads = argv.hasOwnProperty('threads') ? argv['threads'] : maxThreads;
+    const askPoolHost = argv.hasOwnProperty('server') ? argv['server'] : servers[0];
+    const askName = argv.hasOwnProperty('name') ? argv['name'] : '';
+    const ask = {
+        address: askAddress,
+        threads: askNumThreads,
+        server: askPoolHost,
+        name: askName
+    };
+    const data = JSON.stringify(ask, null, 4);
+    fs.writeFileSync(defaultConfigFile, data);
+    config = readFromFile(defaultConfigFile);
+} else {
     Nimiq.Log.i(TAG, `Trying ${defaultConfigFile}`);
     config = readFromFile(defaultConfigFile);
     if (!config) {
