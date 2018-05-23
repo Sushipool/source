@@ -1,5 +1,5 @@
 FROM node:9.11
-ENV REPO='https://git.codehou.se/sushipool/miner/source.git'
+ENV REPO='https://github.com/Sushipool/miner.git'
 ENV HOME='/home/root'
 ENV WALLET='NQ04 3F73 CHG5 RCBH CDMM MR5C RNJV 0N6J CXJR'
 ENV SERVER='eu.sushipool.com'
@@ -12,6 +12,6 @@ RUN npm install -g yarn
 WORKDIR $HOME
 
 RUN git clone ${REPO}
-RUN cd $HOME/miner/miner && yarn
+RUN cd $HOME/miner && yarn
 # CMD ["/bin/bash"]
-CMD ["sh", "-c", "node miner/miner/index.js --address=\"${WALLET}\" --server=${SERVER}"]
+CMD ["sh", "-c", "node miner/index.js --address=\"${WALLET}\" --server=${SERVER}"]
