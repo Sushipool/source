@@ -9,8 +9,9 @@ RUN apt-get install -y python build-essential git
 
 # RUN mkdir -p $HOME
 WORKDIR $HOME
-
 RUN git clone ${REPO}
-RUN cd $HOME/miner && yarn
+RUN cd $HOME/miner/miner && yarn
+
+WORKDIR $HOME/miner/miner
+CMD ["sh", "-c", "node index.js --address=\"${WALLET}\" --server=${SERVER}"]
 # CMD ["/bin/bash"]
-CMD ["sh", "-c", "node miner/index.js --address=\"${WALLET}\" --server=${SERVER}"]
