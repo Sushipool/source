@@ -139,8 +139,8 @@ function humanHashes(bytes) {
 
     // connect to pool
     const deviceId = Nimiq.BasePoolMiner.generateDeviceId(networkConfig);
-
-    $.miner = new SushiPoolMiner($.blockchain, $.accounts, $.mempool, $.network.time, $.wallet.address, deviceId, deviceName);
+    const startDifficulty = config.startDifficulty || 1;
+    $.miner = new SushiPoolMiner($.blockchain, $.accounts, $.mempool, $.network.time, $.wallet.address, deviceId, deviceName, startDifficulty);
 
     $.consensus.on('established', () => {
         Nimiq.Log.i(TAG, `Connecting to pool ${config.poolMining.host} using device id ${deviceId} as a smart client.`);
