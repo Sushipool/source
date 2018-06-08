@@ -9,18 +9,12 @@
     <!-- All of the Node.js APIs are available in this renderer process. -->
     <h1 id="message">Sushi Miner</h1>
     <div id="info"></h1>
-    <p>hihishdifhsdifh</p>
+    <p>This is the Sushi Electron Miner</p>
     <button id="myButton">Click to start mining</button>
 
     <script>
         window.$ = window.jQuery = require('jquery');
         require("./renderer.js");
-        require("./app.js");
-        const myButton = document.getElementById("myButton");
-        myButton.addEventListener("click", e => {
-            console.log("I was clicked.");
-            ipcRenderer.send("btnclick", { message: "The button was clicked" });
-        });
     </script>
 
   </body>
