@@ -81,12 +81,12 @@ function humanHashes(bytes) {
     return bytes.toFixed(1)+' '+units[u];
 }
 
-ipcMain.on('click', () => {
+ipcMain.on('click', (event, arg) => {
 
-	console.log('do something');
 	const $ = {};
 	Nimiq.Log.instance.level = 'info';
 	const TAG = 'SushiPool';
+
 	(async () => {
 
 		Nimiq.GenesisConfig.init(Nimiq.GenesisConfig.CONFIGS['main']);
@@ -107,22 +107,30 @@ ipcMain.on('click', () => {
 		const poolMiningPort = 443;
 
 		$.consensus.on('established', () => {
-	        Nimiq.Log.i(TAG, `Connecting to pool ${poolMiningHost} using device id ${deviceId} as a smart client.`);
+			const msg = `Connecting to pool ${poolMiningHost} using device id ${deviceId} as a smart client.`
+	        Nimiq.Log.i(TAG, msg);
+			event.sender.send('asynchronous-reply', msg);
 	        $.miner.connect(poolMiningHost, poolMiningPort);
 	    });
 
 	    $.blockchain.on('head-changed', (head) => {
 	        if ($.consensus.established || head.height % 100 === 0) {
-	            Nimiq.Log.i(TAG, `Now at block: ${head.height}`);
+				const msg = `Now at block: ${head.height}`;
+	            Nimiq.Log.i(TAG, msg);
+				event.sender.send('asynchronous-reply', msg);
 	        }
 	    });
 
 	    $.network.on('peer-joined', (peer) => {
-	        Nimiq.Log.i(TAG, `Connected to ${peer.peerAddress.toString()}`);
+			const msg = `Connected to ${peer.peerAddress.toString()}`;
+			Nimiq.Log.i(TAG, msg);
+			event.sender.send('asynchronous-reply', msg);
 	    });
 
 	    $.network.on('peer-left', (peer) => {
-	        Nimiq.Log.i(TAG, `Disconnected from ${peer.peerAddress.toString()}`);
+			const msg = `Disconnected from ${peer.peerAddress.toString()}`
+	        Nimiq.Log.i(TAG, msg);
+			event.sender.send('asynchronous-reply', msg);
 	    });
 
 	    $.network.connect();
@@ -131,12 +139,18 @@ ipcMain.on('click', () => {
 		$.miner.threads = maxThreads;
 
 	    $.consensus.on('established', () => {
-	        Nimiq.Log.i(TAG, `Blockchain consensus established in ${(Date.now() - START) / 1000}s.`);
-	        Nimiq.Log.i(TAG, `Current state: height=${$.blockchain.height}, totalWork=${$.blockchain.totalWork}, headHash=${$.blockchain.headHash}`);
+			let msg = `Blockchain consensus established in ${(Date.now() - START) / 1000}s.`;
+	        Nimiq.Log.i(TAG, msg);
+			event.sender.send('asynchronous-reply', msg);
+			msg = `Current state: height=${$.blockchain.height}, totalWork=${$.blockchain.totalWork}, headHash=${$.blockchain.headHash}`;
+	        Nimiq.Log.i(TAG, msg);
+			event.sender.send('asynchronous-reply', msg);
 	    });
 
 	    $.miner.on('block-mined', (block) => {
-	        Nimiq.Log.i(TAG, `Block mined: #${block.header.height}, hash=${block.header.hash()}`);
+			const msg = `Block mined: #${block.header.height}, hash=${block.header.hash()}`;
+	        Nimiq.Log.i(TAG, msg);
+			event.sender.send('asynchronous-reply', msg);
 	    });
 
 	    // Output regular statistics
@@ -148,9 +162,11 @@ ipcMain.on('click', () => {
 	        if (hashrates.length >= outputInterval) {
 	            const account = await $.accounts.get($.wallet.address);
 	            const sum = hashrates.reduce((acc, val) => acc + val, 0);
-	            Nimiq.Log.i(TAG, `Hashrate: ${humanHashes((sum / hashrates.length).toFixed(2).padStart(7))}`
+				const msg = `Hashrate: ${humanHashes((sum / hashrates.length).toFixed(2).padStart(7))}`
 	                + ` - Balance: ${Nimiq.Policy.satoshisToCoins(account.balance)} NIM`
-	                + ` - Mempool: ${$.mempool.getTransactions().length} tx`);
+	                + ` - Mempool: ${$.mempool.getTransactions().length} tx`;
+	            Nimiq.Log.i(TAG, msg);
+				event.sender.send('asynchronous-reply', msg);
 	            hashrates.length = 0;
 	        }
 	    });
@@ -159,6 +175,7 @@ ipcMain.on('click', () => {
 	    console.error(e);
 	    process.exit(1);
 	});
+
 });
 
 exports.onClick = () => console.log('Yay');
