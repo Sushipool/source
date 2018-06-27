@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sushipool Electron Miner</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+
+<body style="background-color: #5E6BB0; color: white">
+
+    <div id="container" class="container-fluid">
+
+        <div class="row mt-4">
+            <div class="col">
+                <img src="SushiPool-Logo.png" width="15%" />
+            </div>
+        </div>
+
+        <form>
+
+            <div class="form-row mt-4">
+                <div class="col-8">
+                    <label for="walletAddress">Wallet address</label>
+                    <input id="walletAddress" type="text" class="form-control" aria-describedby="walletHelp"
+                        placeholder="Nimiq wallet address, e.g. NQ04 3F73 CHG5 RCBH CDMM MR5C RNJV 0N6J CXJR"
+                        value="NQ04 3F73 CHG5 RCBH CDMM MR5C RNJV 0N6J CXJR">
+                </div>
+                <div class="col-2">
+                    <label for="validationDefault02">Device name</label>
+                    <input type="text" class="form-control" id="deviceName" placeholder="" value="" disabled>
+                </div>
+                <div class="col-2">
+                    <label for="threads">No. of threads</label>
+                    <select class="form-control" id="noOfThreads">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                  </select>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="poolMiningHost">Sushipool Server</label>
+                        <select class="form-control" id="poolMiningHost">
+                            <option>eu.sushipool.com</option>
+                            <option>us-west.sushipool.com</option>
+                            <option>us-east.sushipool.com</option>
+                            <option>asia.sushipool.com</option>
+                            <option>au.sushipool.com</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col">
+                    <button id="myButton" class="btn btn-info btn-block">Start Mining!</button>
+                </div>
+            </div>
+
+        </form>
+
+        <div class="row">
+            <div class="col">
+                <div id="info" style="margin-top: 20px; padding: 10px; overflow-y: scroll; height:350px; background-color: #354861; color: white;">
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // You can also require other files to run in this process
+            require("./renderer.js");
+            window.$ = window.jquery = require("jquery");
+            window.popper = require("popper.js");
+            require("bootstrap");
+        </script>
+
+</body>
+
+</html>

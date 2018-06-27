@@ -31,7 +31,7 @@ if [ -d "source" ]; then
     git pull
 else
     echo 'Cloning the latest SushiPool codes.'
-    git clone https://git.codehou.se/sushipool/miner/source.git
+    git clone https://github.com/Sushipool/source
     cd source/miner
 fi
 yarn
