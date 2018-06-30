@@ -9,6 +9,7 @@ const path = require("path");
 const reload = require("electron-reload");
 const isDev = require("electron-is-dev");
 const Nimiq = require("@nimiq/core");
+const SushiPoolMiner = require("./SushiPoolMiner.js");
 
 // Modules to control application life and create native browser window
 const { app, BrowserWindow, ipcMain, dialog } = electron;
@@ -19,13 +20,13 @@ let mainWindow;
 
 // causes weird page reloads when mining?
 // if (isDev) {
-// 	const electronPath = path.join(__dirname, "node_modules", ".bin", "electron");
+// 	const electronPath = path.join(__dirname, 'node_modules', '.bin', 'electron');
 // 	reload(__dirname, { electron: electronPath });
 // }
 
 function createWindow() {
     // Create the browser window.
-    mainWindow = new BrowserWindow({ width: 1024, height: 800 });
+    mainWindow = new BrowserWindow({ width: 800, height: 600 });
 
     // and load the index.html of the app.
     mainWindow.loadFile("index.html");
@@ -45,7 +46,17 @@ function createWindow() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", createWindow);
+app.on("ready", () => {
+    createWindow();
+    mainWindow.webContents.on("did-finish-load", () => {
+        // set the initial form values
+        const params = {
+            maxThreads: maxThreads,
+            defaultName: os.hostname()
+        };
+        mainWindow.webContents.send("initFormParams", params);
+    });
+});
 
 // Quit when all windows are closed.
 app.on("window-all-closed", function() {
@@ -90,132 +101,193 @@ function humanHashes(bytes) {
     return bytes.toFixed(1) + " " + units[u];
 }
 
-ipcMain.on("click", (event, args) => {
+// global reference to miner
+let miner = undefined;
+let isMining = false;
+
+Nimiq.Log.instance.level = "info";
+const TAG = "SushiPool";
+const poolMiningPort = 443;
+const startMiningMsg = "Start mining!";
+const stopMiningMsg = "Stop mining";
+
+ipcMain.on("mine", (event, args) => {
     const $ = {};
-    Nimiq.Log.instance.level = "info";
-    const TAG = "SushiPool";
 
     function showMessage(msg) {
         Nimiq.Log.i(TAG, msg);
-        event.sender.send("asynchronous-reply", msg);
+        event.sender.send("logging", msg);
     }
 
-	showMessage(`Wallet address: ${args.walletAddress}`);
-	showMessage(`Pool server: ${args.poolMiningHost}`);
-	showMessage(`No. of threads: ${args.noOfThreads}`);
+    function updateMineButton(disabled, label) {
+        const args = {
+            disabled: disabled,
+            label: label
+        };
+        event.sender.send("mine-button", args);
+    }
 
-	const walletAddress = args.walletAddress;
-	const poolMiningHost = args.poolMiningHost;
-	const poolMiningPort = 443;
-	const numThreads = args.noOfThreads;
+    showMessage(`Wallet address: ${args.walletAddress}`);
+    showMessage(`Pool server: ${args.poolMiningHost}`);
+    showMessage(`No. of threads: ${args.noOfThreads}`);
 
-    (async () => {
-        Nimiq.GenesisConfig.init(Nimiq.GenesisConfig.CONFIGS["main"]);
-        const networkConfig = new Nimiq.DumbNetworkConfig();
-        $.consensus = await Nimiq.Consensus.light(networkConfig);
-        $.blockchain = $.consensus.blockchain;
-        $.accounts = $.blockchain.accounts;
-        $.mempool = $.consensus.mempool;
-        $.network = $.consensus.network;
+    const walletAddress = args.walletAddress;
+    const poolMiningHost = args.poolMiningHost;
+    const numThreads = args.noOfThreads;
 
-		$.walletStore = await new Nimiq.WalletStore();
-        const address = Nimiq.Address.fromUserFriendlyAddress(walletAddress);
-        $.wallet = {address: address};
-        // Check if we have a full wallet in store.
-        const wallet = await $.walletStore.get(address);
-        if (wallet) {
-            $.wallet = wallet;
-            await $.walletStore.setDefault(wallet.address);
+    if (miner === undefined) {
+        (async () => {
+            // TODO: connect immediately once the app is loaded
+            updateMineButton(true, "Miner initialising");
+            event.sender.send("switchTab", "#logs-tab");
+            Nimiq.GenesisConfig.init(Nimiq.GenesisConfig.CONFIGS["main"]);
+            const networkConfig = new Nimiq.DumbNetworkConfig();
+            $.consensus = await Nimiq.Consensus.light(networkConfig);
+            $.blockchain = $.consensus.blockchain;
+            $.accounts = $.blockchain.accounts;
+            $.mempool = $.consensus.mempool;
+            $.network = $.consensus.network;
+
+            $.walletStore = await new Nimiq.WalletStore();
+            if (!walletAddress) {
+                // Load or create default wallet.
+                $.wallet = await $.walletStore.getDefault();
+            } else {
+                const address = Nimiq.Address.fromUserFriendlyAddress(
+                    walletAddress
+                );
+                $.wallet = { address: address };
+                // Check if we have a full wallet in store.
+                const wallet = await $.walletStore.get(address);
+                if (wallet) {
+                    $.wallet = wallet;
+                    await $.walletStore.setDefault(wallet.address);
+                }
+            }
+
+            const account = await $.accounts.get($.wallet.address);
+            const deviceId = Nimiq.BasePoolMiner.generateDeviceId(
+                networkConfig
+            );
+            const deviceName = os.hostname();
+            const startDifficulty = 1; // TODO: set this from form??
+            $.miner = new SushiPoolMiner(
+                $.blockchain,
+                $.accounts,
+                $.mempool,
+                $.network.time,
+                $.wallet.address,
+                deviceId,
+                deviceName,
+                startDifficulty
+            );
+            miner = $.miner;
+
+            $.consensus.on("established", () => {
+                const msg = `Connecting to pool ${poolMiningHost} using device id ${deviceId} as a smart client.`;
+                showMessage(msg);
+                $.miner.connect(poolMiningHost, poolMiningPort);
+            });
+
+            $.blockchain.on("head-changed", head => {
+                if ($.consensus.established || head.height % 100 === 0) {
+                    const msg = `Now at block: ${head.height}`;
+                    showMessage(msg);
+                }
+            });
+
+            $.network.on("peer-joined", peer => {
+                const msg = `Connected to ${peer.peerAddress.toString()}`;
+                showMessage(msg);
+            });
+
+            $.network.on("peer-left", peer => {
+                const msg = `Disconnected from ${peer.peerAddress.toString()}`;
+                showMessage(msg);
+            });
+
+            $.network.connect();
+            $.consensus.on("established", () => {
+                $.miner.startWork();
+                isMining = true;
+                updateMineButton(false, stopMiningMsg);
+            });
+            $.consensus.on("lost", () => {
+                $.miner.stopWork();
+                isMining = false;
+                updateMineButton(false, startMiningMsg);
+            });
+            $.miner.threads = numThreads;
+
+            $.consensus.on("established", () => {
+                let msg = `Blockchain consensus established in ${(Date.now() -
+                    START) /
+                    1000}s.`;
+                showMessage(msg);
+                msg = `Current state: height=${
+                    $.blockchain.height
+                }, totalWork=${$.blockchain.totalWork}, headHash=${
+                    $.blockchain.headHash
+                }`;
+                showMessage(msg);
+            });
+
+            $.miner.on("block-mined", block => {
+                const msg = `Block mined: #${
+                    block.header.height
+                }, hash=${block.header.hash()}`;
+                showMessage(msg);
+            });
+
+            // Output regular statistics
+            const hashrates = [];
+            const outputInterval = 5;
+            $.miner.on("hashrate-changed", async hashrate => {
+                hashrates.push(hashrate);
+
+                if (hashrates.length >= outputInterval) {
+                    const account = await $.accounts.get($.wallet.address);
+                    const sum = hashrates.reduce((acc, val) => acc + val, 0);
+                    const msg =
+                        `Hashrate: ${humanHashes(
+                            (sum / hashrates.length).toFixed(2).padStart(7)
+                        )}` +
+                        ` - Balance: ${Nimiq.Policy.satoshisToCoins(
+                            account.balance
+                        )} NIM` +
+                        ` - Mempool: ${$.mempool.getTransactions().length} tx`;
+                    showMessage(msg);
+                    hashrates.length = 0;
+                }
+            });
+        })().catch(e => {
+            console.error(e);
+            process.exit(1);
+        });
+    } else {
+        // toggle mining on and off
+        if (isMining) {
+            miner.stopWork();
+            isMining = false;
+            showMessage("Miner stopped");
+            updateMineButton(false, startMiningMsg);
+        } else {
+            miner.startWork();
+            isMining = true;
+            showMessage("Miner started");
+            updateMineButton(false, stopMiningMsg);
+            event.sender.send("switchTab", "#logs-tab");
         }
+    }
+});
 
-        const account = await $.accounts.get($.wallet.address);
-        // connect to pool
-        const deviceId = Nimiq.BasePoolMiner.generateDeviceId(networkConfig);
-        const deviceName = os.hostname();
-        const extraData = new Uint8Array(0);
-        $.miner = new Nimiq.SmartPoolMiner(
-            $.blockchain,
-            $.accounts,
-            $.mempool,
-            $.network.time,
-            $.wallet.address,
-            deviceId,
-            deviceName,
-            extraData
-        );
-
-        $.consensus.on("established", () => {
-            const msg = `Connecting to pool ${poolMiningHost} using device id ${deviceId} as a smart client.`;
-            showMessage(msg);
-            $.miner.connect(poolMiningHost, poolMiningPort);
-        });
-
-        $.blockchain.on("head-changed", head => {
-            if ($.consensus.established || head.height % 100 === 0) {
-                const msg = `Now at block: ${head.height}`;
-                showMessage(msg);
-            }
-        });
-
-        $.network.on("peer-joined", peer => {
-            const msg = `Connected to ${peer.peerAddress.toString()}`;
-            showMessage(msg);
-        });
-
-        $.network.on("peer-left", peer => {
-            const msg = `Disconnected from ${peer.peerAddress.toString()}`;
-            showMessage(msg);
-        });
-
-        $.network.connect();
-        $.consensus.on("established", () => $.miner.startWork());
-        $.consensus.on("lost", () => $.miner.stopWork());
-        $.miner.threads = numThreads;
-
-        $.consensus.on("established", () => {
-            let msg = `Blockchain consensus established in ${(Date.now() -
-                START) /
-                1000}s.`;
-            showMessage(msg);
-            msg = `Current state: height=${$.blockchain.height}, totalWork=${
-                $.blockchain.totalWork
-            }, headHash=${$.blockchain.headHash}`;
-            showMessage(msg);
-        });
-
-        $.miner.on("block-mined", block => {
-            const msg = `Block mined: #${
-                block.header.height
-            }, hash=${block.header.hash()}`;
-            showMessage(msg);
-        });
-
-        // Output regular statistics
-        const hashrates = [];
-        const outputInterval = 5;
-        $.miner.on("hashrate-changed", async hashrate => {
-            hashrates.push(hashrate);
-
-            if (hashrates.length >= outputInterval) {
-                const account = await $.accounts.get($.wallet.address);
-                const sum = hashrates.reduce((acc, val) => acc + val, 0);
-                const msg =
-                    `Hashrate: ${humanHashes(
-                        (sum / hashrates.length).toFixed(2).padStart(7)
-                    )}` +
-                    ` - Balance: ${Nimiq.Policy.satoshisToCoins(
-                        account.balance
-                    )} NIM` +
-                    ` - Mempool: ${$.mempool.getTransactions().length} tx`;
-                showMessage(msg);
-                hashrates.length = 0;
-            }
-        });
-    })().catch(e => {
-        console.error(e);
-        process.exit(1);
-    });
-
+ipcMain.on("noOfThreadsChanged", (event, args) => {
+    if (miner !== undefined && isMining) {
+        miner.threads = parseInt(args);
+        const msg = `No. of threads = ${args}`;
+        Nimiq.Log.i(TAG, msg);
+        event.sender.send("logging", msg);
+    }
 });
 
 exports.onClick = () => console.log("Yay");
