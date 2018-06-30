@@ -23,7 +23,7 @@ sudo apt-get install -y nodejs
 
 curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-sudo apt-get update && sudo apt-get install -y yarn
+sudo apt-get update && sudo apt-get install -y yarn build-essential
 
 if [ -d "source" ]; then
     echo 'Existing source directory found. Updating to latest SushiPool codes.'
