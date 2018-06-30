@@ -16,7 +16,7 @@ class SushiPoolMiner extends BasePoolMiner {
      */
     constructor(mode, blockchain, accounts, mempool, time, address, deviceId, deviceName, startDifficulty) {
         let extraData = new Uint8Array(0);
-        super(blockchain, accounts, mempool, time, address, deviceId, extraData);
+        super(mode, blockchain, accounts, mempool, time, address, deviceId, extraData);
         this._deviceName = deviceName;
         this.on('share', (block, fullValid) => this._onBlockMined(block, fullValid));
         this._startDifficulty = startDifficulty;
