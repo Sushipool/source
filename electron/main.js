@@ -172,6 +172,7 @@ ipcMain.on("mine", (event, args) => {
             const deviceName = os.hostname();
             const startDifficulty = 1; // TODO: set this from form??
             $.miner = new SushiPoolMiner(
+                'smart',
                 $.blockchain,
                 $.accounts,
                 $.mempool,
