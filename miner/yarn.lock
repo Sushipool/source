@@ -2,11 +2,11 @@
 # yarn lockfile v1
 
 
-"@nimiq/core@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@nimiq/core/-/core-1.1.2.tgz#b305e816f4b6657b25fdc17264cd696850020e5b"
+"@nimiq/core@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@nimiq/core/-/core-1.2.0.tgz#93bc46b662d68f03467a6931c36febb76ff2f797"
   dependencies:
-    "@nimiq/jungle-db" "^0.9.14-alpha"
+    "@nimiq/jungle-db" "^0.9.14"
     atob "^2.0.3"
     bindings "^1.3.0"
     btoa "^1.1.2"
@@ -15,14 +15,15 @@
     lodash.merge "^4.6.1"
     minimist "^1.2.0"
     nan "^2.10.0"
-    uws "^9.14.0"
+    uws "^10.148.0"
+    ws "^5.2.0"
   optionalDependencies:
     bufferutil "^3.0.4"
     utf-8-validate "^4.0.1"
 
-"@nimiq/jungle-db@^0.9.14-alpha":
-  version "0.9.14-alpha"
-  resolved "https://registry.yarnpkg.com/@nimiq/jungle-db/-/jungle-db-0.9.14-alpha.tgz#65fe49bf345edb82cc6ec1666e18078ad6e0a32b"
+"@nimiq/jungle-db@^0.9.14":
+  version "0.9.14"
+  resolved "https://registry.yarnpkg.com/@nimiq/jungle-db/-/jungle-db-0.9.14.tgz#24c4a0a5dcb608aeeff9e5bdc86ef9192d284d35"
   dependencies:
     atob "^2.0.3"
     btoa "^1.1.2"
@@ -30,7 +31,7 @@
     level-sublevel "^6.6.1"
     leveldown "^3.0.0"
     levelup "^2.0.2"
-    node-lmdb paberr/node-lmdb#af876c67055cc7cf0b3c1949e472484aa34410de
+    node-lmdb "0.6.0"
 
 abstract-leveldown@~0.12.1:
   version "0.12.4"
@@ -68,6 +69,10 @@ are-we-there-yet@~1.1.2:
   dependencies:
     delegates "^1.0.0"
     readable-stream "^2.0.6"
+
+async-limiter@~1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/async-limiter/-/async-limiter-1.0.0.tgz#78faed8c3d074ab81f22b4e985d79e8738f720f8"
 
 atob@^2.0.3:
   version "2.1.1"
@@ -507,7 +512,7 @@ named-placeholders@1.1.1:
   dependencies:
     lru-cache "2.5.0"
 
-nan@^2.10.0, nan@^2.6.2, nan@~2.10.0:
+nan@^2.10.0, nan@~2.10.0:
   version "2.10.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"
 
@@ -517,12 +522,12 @@ node-abi@^2.2.0:
   dependencies:
     semver "^5.4.1"
 
-node-lmdb@paberr/node-lmdb#af876c67055cc7cf0b3c1949e472484aa34410de:
-  version "0.5.4"
-  resolved "https://codeload.github.com/paberr/node-lmdb/tar.gz/af876c67055cc7cf0b3c1949e472484aa34410de"
+node-lmdb@0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/node-lmdb/-/node-lmdb-0.6.0.tgz#14be5f650e1a560aeb86174e0cc85d95945d870a"
   dependencies:
     bindings "^1.2.1"
-    nan "^2.6.2"
+    nan "^2.10.0"
 
 noop-logger@^0.1.1:
   version "0.1.1"
@@ -846,13 +851,13 @@ util-deprecate@~1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
 
-uws@^9.14.0:
+uws@^10.148.0:
+  version "10.148.1"
+  resolved "https://registry.yarnpkg.com/uws/-/uws-10.148.1.tgz#fd1a79cf6118a388e0a1bed8a1397030d2c4fd2c"
+
+uws@^9.148.0:
   version "9.148.0"
   resolved "https://registry.yarnpkg.com/uws/-/uws-9.148.0.tgz#56aff36cb95f7594573daff2a21105ec4b764664"
-
-uws@^9.147.0:
-  version "9.147.0"
-  resolved "https://registry.yarnpkg.com/uws/-/uws-9.147.0.tgz#aec775fb28074ab520f65802eff609c6662be7e8"
 
 which-pm-runs@^1.0.0:
   version "1.0.0"
@@ -867,6 +872,12 @@ wide-align@^1.1.0:
 wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
+
+ws@^5.2.0:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-5.2.1.tgz#37827a0ba772d072a843c3615b0ad38bcdb354eb"
+  dependencies:
+    async-limiter "~1.0.0"
 
 xtend@^4.0.0, xtend@~4.0.0:
   version "4.0.1"
