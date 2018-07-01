@@ -13,10 +13,11 @@ class SushiPoolMiner extends BasePoolMiner {
      * @param {Address} address
      * @param {number} deviceId
      * @param {string} deviceName
+     * @param {int} startDifficulty
      */
     constructor(blockchain, accounts, mempool, time, address, deviceId, deviceName, startDifficulty) {
         let extraData = new Uint8Array(0);
-        super(BasePoolMiner.Mode.SMART, blockchain, accounts, mempool, time, address, deviceId, extraData);
+        super(blockchain, accounts, mempool, time, address, deviceId, extraData);
         this._deviceName = deviceName;
         this.on('share', (block, fullValid) => this._onBlockMined(block, fullValid));
         this._startDifficulty = startDifficulty;
@@ -43,7 +44,7 @@ class SushiPoolMiner extends BasePoolMiner {
         Nimiq.Log.i(SushiPoolMiner, `Registering to pool using device id ${this._deviceId} (${deviceName}) as a smart client.`);
         this._send({
             message: 'register',
-            mode: this.mode,
+            mode: 'smart',
             address: this._ourAddress.toUserFriendlyAddress(),
             deviceId: this._deviceId,
             startDifficulty: this._startDifficulty,
