@@ -8,6 +8,7 @@ const electron = require("electron");
 const path = require("path");
 const reload = require("electron-reload");
 const isDev = require("electron-is-dev");
+const Store = require('electron-store');
 const Nimiq = require("@nimiq/core");
 const SushiPoolMiner = require("./SushiPoolMiner.js");
 
@@ -17,6 +18,9 @@ const { app, BrowserWindow, ipcMain, dialog } = electron;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+
+// to store configs
+const store = new Store();
 
 // causes weird page reloads when mining?
 // if (isDev) {
@@ -49,10 +53,17 @@ function createWindow() {
 app.on("ready", () => {
     createWindow();
     mainWindow.webContents.on("did-finish-load", () => {
-        // set the initial form values
+        // try to load previously saved values
+        const walletAddress = store.get('walletAddress');
+        const poolMiningHost = store.get('poolMiningHost');
+        const numThreads = store.get('numThreads') || maxThreads;
+        const deviceName = store.get('deviceName') || os.hostname();
+        // set initial form values
         const params = {
-            maxThreads: maxThreads,
-            defaultName: os.hostname()
+            walletAddress: walletAddress,
+            poolMiningHost: poolMiningHost,
+            numThreads: numThreads,
+            deviceName: deviceName
         };
         mainWindow.webContents.send("initFormParams", params);
     });
@@ -101,15 +112,15 @@ function humanHashes(bytes) {
     return bytes.toFixed(1) + " " + units[u];
 }
 
+Nimiq.Log.instance.level = "info";
+const TAG = "SushiPool";
+const POOR_MINING_PORT = 443;
+const START_MINING_MSG = "Start mining!";
+const STOP_MINING_MSG = "Stop mining";
+
 // global reference to miner
 let miner = undefined;
 let isMining = false;
-
-Nimiq.Log.instance.level = "info";
-const TAG = "SushiPool";
-const poolMiningPort = 443;
-const startMiningMsg = "Start mining!";
-const stopMiningMsg = "Stop mining";
 
 ipcMain.on("mine", (event, args) => {
     const $ = {};
@@ -127,13 +138,14 @@ ipcMain.on("mine", (event, args) => {
         event.sender.send("mine-button", args);
     }
 
-    showMessage(`Wallet address: ${args.walletAddress}`);
-    showMessage(`Pool server: ${args.poolMiningHost}`);
-    showMessage(`No. of threads: ${args.noOfThreads}`);
-
     const walletAddress = args.walletAddress;
     const poolMiningHost = args.poolMiningHost;
     const numThreads = args.noOfThreads;
+
+    // store for the next run
+    store.set('walletAddress', walletAddress);
+    store.set('poolMiningHost', poolMiningHost);
+    store.set('numThreads', numThreads);
 
     if (miner === undefined) {
         (async () => {
@@ -164,6 +176,9 @@ ipcMain.on("mine", (event, args) => {
                     await $.walletStore.setDefault(wallet.address);
                 }
             }
+            showMessage(`Wallet address: ${$.wallet.address.toUserFriendlyAddress()})`);
+            showMessage(`Pool server: ${args.poolMiningHost}`);
+            showMessage(`No. of threads: ${args.noOfThreads}`);
 
             const account = await $.accounts.get($.wallet.address);
             const deviceId = Nimiq.BasePoolMiner.generateDeviceId(
@@ -187,7 +202,7 @@ ipcMain.on("mine", (event, args) => {
             $.consensus.on("established", () => {
                 const msg = `Connecting to pool ${poolMiningHost} using device id ${deviceId} as a smart client.`;
                 showMessage(msg);
-                $.miner.connect(poolMiningHost, poolMiningPort);
+                $.miner.connect(poolMiningHost, POOR_MINING_PORT);
             });
 
             $.blockchain.on("head-changed", head => {
@@ -211,12 +226,12 @@ ipcMain.on("mine", (event, args) => {
             $.consensus.on("established", () => {
                 $.miner.startWork();
                 isMining = true;
-                updateMineButton(false, stopMiningMsg);
+                updateMineButton(false, STOP_MINING_MSG);
             });
             $.consensus.on("lost", () => {
                 $.miner.stopWork();
                 isMining = false;
-                updateMineButton(false, startMiningMsg);
+                updateMineButton(false, START_MINING_MSG);
             });
             $.miner.threads = numThreads;
 
@@ -271,12 +286,12 @@ ipcMain.on("mine", (event, args) => {
             miner.stopWork();
             isMining = false;
             showMessage("Miner stopped");
-            updateMineButton(false, startMiningMsg);
+            updateMineButton(false, START_MINING_MSG);
         } else {
             miner.startWork();
             isMining = true;
             showMessage("Miner started");
-            updateMineButton(false, stopMiningMsg);
+            updateMineButton(false, STOP_MINING_MSG);
             event.sender.send("switchTab", "#logs-tab");
         }
     }

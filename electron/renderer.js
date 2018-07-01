@@ -10,17 +10,25 @@ const mainProcess = remote.require("./main.js");
 document.addEventListener("DOMContentLoaded", function() {
     // set initial form values
     ipcRenderer.on("initFormParams", (event, args) => {
+
+        // set wallet address
+        $("#walletAddress").val(args.walletAddress);
+
         // set device name
-        $("#deviceName").val(args.defaultName);
+        $("#deviceName").val(args.deviceName);
 
         // set no. of threads
         // $('#noOfThreads').find('option').remove();
-        for (let i = 0; i < args.maxThreads; i++) {
+        for (let i = 0; i < args.numThreads; i++) {
             $("#noOfThreads").append(
                 $("<option>", { value: i + 1, html: i + 1 })
             );
         }
-        $("#noOfThreads").val(args.maxThreads);
+        $("#noOfThreads").val(args.numThreads);
+
+        // set pool mining host
+        $('#poolMiningHost').val(args.poolMiningHost);
+
     });
 
     // handle mine button click
