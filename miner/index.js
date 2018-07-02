@@ -7,6 +7,8 @@ const Nimiq = require('@nimiq/core');
 const argv = require('minimist')(process.argv.slice(2));
 const readFromFile = require('./src/Config.js');
 const SushiPoolMiner = require('./src/SushiPoolMiner.js');
+let Finder = require('./src/ServerFinder.js');
+const ServerFinder = new Finder();
 const readlineSync = require('readline-sync');
 var fs = require('fs');
 const pjson = require('./package.json');
@@ -17,7 +19,7 @@ const $ = {};
 const defaultConfigFile = 'sushipool.conf';
 
 const servers = [
-    'eu.sushipool.com',
+    'eu3.sushipool.com',
     'us-east.sushipool.com',
     'us-west.sushipool.com',
     'asia.sushipool.com',
@@ -31,12 +33,10 @@ if (argv.hasOwnProperty('address')) {
     Nimiq.Log.i(TAG, 'Reading config from argv');
     const askAddress = argv['address'];
     const askNumThreads = argv.hasOwnProperty('threads') ? argv['threads'] : maxThreads;
-    const askPoolHost = argv.hasOwnProperty('server') ? argv['server'] : servers[0];
     const askName = argv.hasOwnProperty('name') ? argv['name'] : '';
     const ask = {
         address: askAddress,
         threads: askNumThreads,
-        server: askPoolHost,
         name: askName
     };
     const data = JSON.stringify(ask, null, 4);
@@ -51,12 +51,9 @@ if (argv.hasOwnProperty('address')) {
         const askName = readlineSync.question(`Enter a name for this miner (press Enter to use ${os.hostname}): `);
         const query = `Enter the number of threads to use for mining (max ${maxThreads}): `;
         const askNumThreads = readlineSync.questionInt(query);
-        const options = {guide: false, cancel: false};
-        const askPoolHost = readlineSync.keyInSelect(servers, 'Select a Sushi Server:', options);
         const ask = {
             address: askAddress,
             threads: askNumThreads,
-            server: servers[askPoolHost],
             name: askName
         };
         const data = JSON.stringify(ask, null, 4);
@@ -64,6 +61,8 @@ if (argv.hasOwnProperty('address')) {
         config = readFromFile(defaultConfigFile);
     }
 }
+
+
 
 config = Object.assign(config, argv);
 config.poolMining.enabled = true;
@@ -76,7 +75,7 @@ if (argv.hasOwnProperty('test')){
 } else {
     config.network = 'main';
 }
-config.poolMining.host = config.server;
+
 if(config.hasOwnProperty('threads')){
     config.miner.threads = config.threads;
     delete config.threads;
@@ -100,6 +99,16 @@ function humanHashes(bytes) {
     return bytes.toFixed(1)+' '+units[u];
 }
 (async () => {
+    //fs.writeFileSync(defaultConfigFile, data);
+    const serversSorted = await ServerFinder.findClosestServers(servers, config.poolMining.port);
+    if(!config.server){
+        Nimiq.Log.i(TAG, `No sushi server configured, finding closest server.`);
+        const closestServer = serversSorted[0];
+        config.server = closestServer.host;
+        Nimiq.Log.i(TAG, `Closest server: ${config.server}`);
+    }
+    config.poolMining.host = config.server;
+
     const deviceName = config.name || os.hostname();
     Nimiq.Log.i(TAG, `Sushipool Miner ${pjson.version} starting`);
     Nimiq.Log.i(TAG, `- network          = ${config.network}`);
