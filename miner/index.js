@@ -100,8 +100,10 @@ function humanHashes(bytes) {
 }
 (async () => {
     //fs.writeFileSync(defaultConfigFile, data);
+    let currentServerIndex = 0;
     const serversSorted = await ServerFinder.findClosestServers(servers, config.poolMining.port);
-    if(!config.server){
+    // if(!config.server){
+    if(true){
         Nimiq.Log.i(TAG, `No sushi server configured, finding closest server.`);
         const closestServer = serversSorted[0];
         config.server = closestServer.host;
@@ -154,6 +156,16 @@ function humanHashes(bytes) {
     $.consensus.on('established', () => {
         Nimiq.Log.i(TAG, `Connecting to pool ${config.poolMining.host} using device id ${deviceId} as a smart client.`);
         $.miner.connect(config.poolMining.host, config.poolMining.port);
+    });
+
+    $.miner.on('pool-disconnected', function () {
+        let nextServer = serversSorted[currentServerIndex+1];
+        if(nextServer) {
+            Nimiq.Log.w(TAG, `Lost connection with ${config.poolMining.host}, switching to ${nextServer.host}`);
+            config.poolMining.host = nextServer.host;
+            $.miner.changeServer(config.poolMining.host, config.poolMining.port);
+            currentServerIndex++
+        }
     });
 
     $.blockchain.on('head-changed', (head) => {
