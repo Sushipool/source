@@ -1,13 +1,16 @@
 const { ipcRenderer } = require("electron");
 const { remote } = require("electron");
 const mainProcess = remote.require("./main.js");
+const Chart = require("chart.js");
 
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 
+
 // when DOM ready
 document.addEventListener("DOMContentLoaded", function() {
+	
     // set initial form values
     ipcRenderer.on("initFormParams", (event, args) => {
 
@@ -78,4 +81,56 @@ document.addEventListener("DOMContentLoaded", function() {
         $("#myButton").prop("disabled", args.disabled);
         $("#myButton").html(args.label);
     });
+	
+	// update dashboard
+	const DATA_LENGTH = 20; // number of data points visible at any point	
+	const hashrates = [];
+	ipcRenderer.on("dashboard", (event, args) => {
+		if (args.hasOwnProperty("status")) {
+			$("#dashboard-status").html(args.status);
+		}
+		if (args.hasOwnProperty("hashrate")) {
+			// show in dashboard
+			const hrString = args.hashrate;
+			$("#dashboard-hashrate").html(hrString);
+			// and also plot the hashrates
+			const hr = parseFloat(hrString.split(' ')[0]);
+			hashrates.push(hr);
+			let labels = [...hashrates.keys()];
+			const canvas = document.getElementById("chartjs-0");
+			canvas.style.backgroundColor = 'white';
+			const myLineChart = new Chart(canvas, {
+				type: 'line',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: "Hash rates",
+						data: hashrates,
+						fill: false,
+						borderColor: "rgb(75, 192, 192)",
+						lineTension: 0.1
+					}]
+				},
+				options: {
+					animation: {
+						duration: 0, // general animation time
+					},
+					hover: {
+						animationDuration: 0, // duration of animations when hovering an item
+					},
+					responsiveAnimationDuration: 0, // animation duration after a resize
+				}				
+			});				
+			if (hashrates.length > DATA_LENGTH) {
+				hashrates.shift(); // pop if too long
+			}			
+		}		
+		if (args.hasOwnProperty("peers")) {
+			$("#dashboard-peers").html(args.peers);
+		}					
+		if (args.hasOwnProperty("block")) {
+			$("#dashboard-block").html(args.block);
+		}							
+	});
+	
 });

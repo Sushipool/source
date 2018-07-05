@@ -93,7 +93,27 @@
 
                     <!-- dashboard tab -->
                     <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="dashboard-tab">
-                        ...
+						<table class="table table-sm mt-3">
+							<tbody>
+								<tr>
+									<th>Status</th>
+									<td><div id="dashboard-status">Idle</div></td>
+								</tr>
+								<tr>
+									<th>Hashrate</th>
+									<td><div id="dashboard-hashrate">0 kH/s</div></td>
+								</tr>								
+								<tr>
+									<th>Peers</th>
+									<td><div id="dashboard-peers">0</div></td>
+								</tr>								
+								<tr>
+									<th>Block</th>
+									<td><div id="dashboard-block">0</div></td>
+								</tr>																
+							</tbody>
+						</table>
+						<div class="chartjs-wrapper"><canvas id="chartjs-0" class="chartjs" width="undefined" height="undefined"></canvas></div>						
                     </div>
 
                     <!-- logging tab -->

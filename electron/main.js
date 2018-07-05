@@ -117,6 +117,9 @@ const TAG = "SushiPool";
 const POOR_MINING_PORT = 443;
 const START_MINING_MSG = "Start mining!";
 const STOP_MINING_MSG = "Stop mining";
+const DASHBOARD_MINING = "Mining";
+const DASHBOARD_IDLE = "Idle";
+let peers = 0;
 
 // global reference to miner
 let miner = undefined;
@@ -137,7 +140,7 @@ ipcMain.on("mine", (event, args) => {
         };
         event.sender.send("mine-button", args);
     }
-
+	
     const walletAddress = args.walletAddress;
     const poolMiningHost = args.poolMiningHost;
     const numThreads = args.noOfThreads;
@@ -209,17 +212,22 @@ ipcMain.on("mine", (event, args) => {
                 if ($.consensus.established || head.height % 100 === 0) {
                     const msg = `Now at block: ${head.height}`;
                     showMessage(msg);
+					event.sender.send("dashboard", {block: head.height});																					
                 }
             });
 
             $.network.on("peer-joined", peer => {
                 const msg = `Connected to ${peer.peerAddress.toString()}`;
                 showMessage(msg);
+				peers += 1;
+				event.sender.send("dashboard", {peers: peers});												
             });
 
             $.network.on("peer-left", peer => {
                 const msg = `Disconnected from ${peer.peerAddress.toString()}`;
                 showMessage(msg);
+				peers -= 1;
+				event.sender.send("dashboard", {peers: peers});																
             });
 
             $.network.connect();
@@ -227,11 +235,13 @@ ipcMain.on("mine", (event, args) => {
                 $.miner.startWork();
                 isMining = true;
                 updateMineButton(false, STOP_MINING_MSG);
+				event.sender.send("dashboard", {status: DASHBOARD_MINING});							
             });
             $.consensus.on("lost", () => {
                 $.miner.stopWork();
                 isMining = false;
                 updateMineButton(false, START_MINING_MSG);
+				event.sender.send("dashboard", {status: DASHBOARD_IDLE});							
             });
             $.miner.threads = numThreads;
 
@@ -264,15 +274,15 @@ ipcMain.on("mine", (event, args) => {
                 if (hashrates.length >= outputInterval) {
                     const account = await $.accounts.get($.wallet.address);
                     const sum = hashrates.reduce((acc, val) => acc + val, 0);
+					const hr = humanHashes((sum / hashrates.length).toFixed(2).padStart(7));
                     const msg =
-                        `Hashrate: ${humanHashes(
-                            (sum / hashrates.length).toFixed(2).padStart(7)
-                        )}` +
+                        `Hashrate: ${hr}` +
                         ` - Balance: ${Nimiq.Policy.satoshisToCoins(
                             account.balance
                         )} NIM` +
                         ` - Mempool: ${$.mempool.getTransactions().length} tx`;
                     showMessage(msg);
+					event.sender.send("dashboard", {hashrate: hr});												
                     hashrates.length = 0;
                 }
             });
@@ -287,12 +297,14 @@ ipcMain.on("mine", (event, args) => {
             isMining = false;
             showMessage("Miner stopped");
             updateMineButton(false, START_MINING_MSG);
+			event.sender.send("dashboard", {status: DASHBOARD_IDLE});							
         } else {
             miner.startWork();
             isMining = true;
             showMessage("Miner started");
             updateMineButton(false, STOP_MINING_MSG);
             event.sender.send("switchTab", "#logs-tab");
+			event.sender.send("dashboard", {status: DASHBOARD_MINING});							
         }
     }
 });
