@@ -155,44 +155,6 @@ input:checked + .slider:before {
   padding-right: 50px;
   padding-left: 50px;
 }
-
-.slidecontainer {
-  width: 100%;
-}
-
-.slider {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 10px;
-  border-radius: 5px;
-  background: #4ECE3D;
-  outline: none;
-  opacity: 0.7;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
-}
-
-.slider:hover {
-  opacity: 1;
-}
-
-.slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: #d9edf7;
-  cursor: pointer;
-}
-
-.slider::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: #4CAF50;
-  cursor: pointer;
-}
     </style>
 </head>
 
@@ -236,10 +198,9 @@ input:checked + .slider:before {
                                     <input id="deviceName" type="text" class="form-control" placeholder="" value="">
                                 </div>
                                 <div class="col-6 center">
-
-                                            <input id="cpuscores" type="range" min="1" max="{{maxCores}}" ng-model="threadCount" value="0" class="slider" id="myRange">
-                                          </div>
-                                      <div id="threadsamount"><p class="leftcore color hidden-xs">0</p><p class="rightcore color hidden-xs">{{threadCount}}</p></div>
+                                    <label class="labeltext" for="threads">NO. OF THREADS</label>
+                                    <hr class="hrlabel">
+                                    <select class="form-control" id="noOfThreads">
                                 </select>
                                 </div>
                             </div>
