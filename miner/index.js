@@ -101,14 +101,12 @@ function humanHashes(bytes) {
 (async () => {
     //fs.writeFileSync(defaultConfigFile, data);
     let currentServerIndex = 0;
+    Nimiq.Log.i(TAG, `Finding closest server.`);
     const serversSorted = await ServerFinder.findClosestServers(servers, config.poolMining.port);
-    // if(!config.server){
-    if(true){
-        Nimiq.Log.i(TAG, `No sushi server configured, finding closest server.`);
-        const closestServer = serversSorted[0];
-        config.server = closestServer.host;
-        Nimiq.Log.i(TAG, `Closest server: ${config.server}`);
-    }
+    const closestServer = serversSorted[0];
+    config.server = closestServer.host;
+    Nimiq.Log.i(TAG, `Closest server: ${config.server}`);
+
     config.poolMining.host = config.server;
 
     const deviceName = config.name || os.hostname();
