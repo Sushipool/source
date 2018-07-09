@@ -19,7 +19,7 @@ const $ = {};
 const defaultConfigFile = 'sushipool.conf';
 
 const servers = [
-    'eu3.sushipool.com',
+    'eu.sushipool.com',
     'us-east.sushipool.com',
     'us-west.sushipool.com',
     'asia.sushipool.com',
