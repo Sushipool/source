@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // handle mine button click
-    $("#myButton").click(() => {
+    $("#startMine").click(() => {
         const walletAddress = $("#walletAddress").val();
         const poolMiningHost = $("#poolMiningHost").val();
         const noOfThreads = $("#noOfThreads").val();
@@ -45,11 +45,15 @@ document.addEventListener("DOMContentLoaded", function() {
             noOfThreads: noOfThreads
         };
         // tells main process to start mining
-        ipcRenderer.send("mine", args);
+        ipcRenderer.send("startMine", args);
         // disable all fields once we start mining, except no. of threads
         $("#walletAddress").prop("disabled", true);
         $("#deviceName").prop("disabled", true);
         $("#poolMiningHost").prop("disabled", true);
+    });
+
+    $("#stopMine").click(() => {
+        ipcRenderer.send("stopMine", args);
     });
 
     // handle no. of threads change
@@ -78,8 +82,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // update mine button
     ipcRenderer.on("mine-button", (event, args) => {
-        $("#myButton").prop("disabled", args.disabled);
-        $("#myButton").html(args.label);
+        $("#startButton").prop("disabled", !args.disabled);
+        $("#stopButton").prop("disabled", args.disabled);
     });
 	
 	// update dashboard

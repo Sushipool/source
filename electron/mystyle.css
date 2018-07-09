@@ -1,0 +1,165 @@
+.nav-tabs li a {
+    background-color: #9869AA;
+    color: #ffffff;
+}
+
+#leftPanel {
+    background-image: linear-gradient(to top, #b966a9, #596ab2);
+}
+
+#rightPanel {
+    border-radius: 10px;
+    background-color: #1c293b;
+    color: #ffffff;
+}
+
+#info {
+    padding: 5px;
+    overflow-y: scroll;
+    height:200px;
+    border-radius: 10px;
+    background-color: #26374c;
+    color: white;
+}
+
+input#walletAddress {
+    width: 100%;
+    height: 42px;
+    text-transform: uppercase;
+}
+
+input#walletAddress, input#deviceName, select#noOfThreads, select#poolMiningHost {
+    opacity: 0.61;
+    border-radius: 4px;
+    background-color: #a8c6df;
+    opacity: 0.61;
+    font-family: Heebo;
+    font-size: 15px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #26374c;
+    height: 42px;
+}
+
+.center {
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    text-align: center;
+}
+
+.labeltext {
+    font-family: Heebo;
+    font-size: 11px;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: 1.7px;
+    text-align: left;
+    color: #ffffff;
+    font-weight: 100;
+}
+
+.minerbuttons {
+    padding: 22px;
+    width: auto;
+    min-width: 30%;
+}
+
+.hrlabel {
+    margin-top: -8px;
+    border-top: 1px solid #FFFFFF;;
+    width: 150px;
+}
+
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    margin-left: 25px;
+    margin-top: 20px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+    display: none;
+}
+
+/* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #3adcb1;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #12a07b;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #12a07b;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* End of Slider */
+
+.webminer {
+    height: 63px;
+    width: 300px;
+    padding-top: 19px;
+}
+
+#switchlabel {
+    font-size: 11px;
+    color: #FFFFFF;
+    font-weight: 100;
+    padding-left: 10px;
+    margin-top: 28px;
+}
+
+.col1 {
+    margin-top: -20px;
+}
+
+.col {
+    padding-right: 50px;
+    padding-left: 50px;
+}

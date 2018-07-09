@@ -67,3 +67,7 @@ miner/peer-key/
 miner/test-light-consensus/
 miner/wallet/
 sushipool.conf
+electron/.idea/modules.xml
+electron/.idea/electron.iml
+electron/.idea/misc.xml
+electron/.idea/workspace.xml

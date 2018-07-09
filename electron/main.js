@@ -30,7 +30,7 @@ const store = new Store();
 
 function createWindow() {
     // Create the browser window.
-    mainWindow = new BrowserWindow({ width: 800, height: 600 });
+    mainWindow = new BrowserWindow({ width: 1024, height: 800 });
 
     // and load the index.html of the app.
     mainWindow.loadFile("index.html");
@@ -125,7 +125,7 @@ let peers = 0;
 let miner = undefined;
 let isMining = false;
 
-ipcMain.on("mine", (event, args) => {
+ipcMain.on("startMine", (event, args) => {
     const $ = {};
 
     function showMessage(msg) {
@@ -133,10 +133,9 @@ ipcMain.on("mine", (event, args) => {
         event.sender.send("logging", msg);
     }
 
-    function updateMineButton(disabled, label) {
+    function updateMineButton(disabled) {
         const args = {
-            disabled: disabled,
-            label: label
+            disabled: disabled
         };
         event.sender.send("mine-button", args);
     }
@@ -153,7 +152,7 @@ ipcMain.on("mine", (event, args) => {
     if (miner === undefined) {
         (async () => {
             // TODO: connect immediately once the app is loaded
-            updateMineButton(true, "Miner initialising");
+            updateMineButton(true);
             event.sender.send("switchTab", "#logs-tab");
             Nimiq.GenesisConfig.init(Nimiq.GenesisConfig.CONFIGS["main"]);
             const networkConfig = new Nimiq.DumbNetworkConfig();
@@ -234,13 +233,13 @@ ipcMain.on("mine", (event, args) => {
             $.consensus.on("established", () => {
                 $.miner.startWork();
                 isMining = true;
-                updateMineButton(false, STOP_MINING_MSG);
+                updateMineButton(false);
 				event.sender.send("dashboard", {status: DASHBOARD_MINING});							
             });
             $.consensus.on("lost", () => {
                 $.miner.stopWork();
                 isMining = false;
-                updateMineButton(false, START_MINING_MSG);
+                updateMineButton(false);
 				event.sender.send("dashboard", {status: DASHBOARD_IDLE});							
             });
             $.miner.threads = numThreads;
@@ -291,22 +290,22 @@ ipcMain.on("mine", (event, args) => {
             process.exit(1);
         });
     } else {
-        // toggle mining on and off
-        if (isMining) {
-            miner.stopWork();
-            isMining = false;
-            showMessage("Miner stopped");
-            updateMineButton(false, START_MINING_MSG);
-			event.sender.send("dashboard", {status: DASHBOARD_IDLE});							
-        } else {
-            miner.startWork();
-            isMining = true;
-            showMessage("Miner started");
-            updateMineButton(false, STOP_MINING_MSG);
-            event.sender.send("switchTab", "#logs-tab");
-			event.sender.send("dashboard", {status: DASHBOARD_MINING});							
-        }
+        // miner has been initalised
+        miner.startWork();
+        isMining = true;
+        showMessage("Miner started");
+        updateMineButton(false);
+        event.sender.send("switchTab", "#logs-tab");
+        event.sender.send("dashboard", {status: DASHBOARD_MINING});
     }
+});
+
+ipcMain.on("stopMine", (event, args) => {
+    miner.stopWork();
+    isMining = false;
+    showMessage("Miner stopped");
+    updateMineButton(false);
+    event.sender.send("dashboard", {status: DASHBOARD_IDLE});
 });
 
 ipcMain.on("noOfThreadsChanged", (event, args) => {
