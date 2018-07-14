@@ -37,3 +37,13 @@ $ ./build.sh node9 win x64 'tag'  # win 64-bit
 ```
 where 'tag' is any string that is used to tag this release, e.g. 'standard', 'fast, 'extreme'
 The output for the command above can be found at `../../binaries`. Run it the same way as in step (1).
+
+
+
+# LICENSE
+This code is using the No license license.   
+Which means you are allowed to use the software.   
+You are not allowed the modify / copy the code without the permission from the owner.   
+For more information visit: [https://choosealicense.com/no-permission/](https://choosealicense.com/no-permission/).   
+- (c) 2018 @joewandy
+- (c) 2018 @brantje
