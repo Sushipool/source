@@ -20,8 +20,7 @@ const defaultConfigFile = 'sushipool.conf';
 
 const servers = [
     'eu.sushipool.com',
-    'us-east.sushipool.com',
-    'us-west.sushipool.com',
+    'us.sushipool.com',
     'asia.sushipool.com',
     'aus.sushipool.com'
 ];
@@ -101,12 +100,14 @@ function humanHashes(bytes) {
 (async () => {
     //fs.writeFileSync(defaultConfigFile, data);
     let currentServerIndex = 0;
+
     Nimiq.Log.i(TAG, `Finding closest server.`);
     const serversSorted = await ServerFinder.findClosestServers(servers, config.poolMining.port);
     const closestServer = serversSorted[0];
-    config.server = closestServer.host;
-    Nimiq.Log.i(TAG, `Closest server: ${config.server}`);
-
+    if(!config.server) {
+        config.server = closestServer.host;
+        Nimiq.Log.i(TAG, `Closest server: ${config.server}`);
+    }
     config.poolMining.host = config.server;
 
     const deviceName = config.name || os.hostname();
@@ -119,6 +120,7 @@ function humanHashes(bytes) {
     Nimiq.Log.i(TAG, `Please wait while we establish consensus.`);
 
     Nimiq.GenesisConfig.init(Nimiq.GenesisConfig.CONFIGS[config.network]);
+    Nimiq.GenesisConfig.SEED_PEERS.push(Nimiq.WssPeerAddress.seed('seed1.sushipool.com', 8443));
     const networkConfig = new Nimiq.DumbNetworkConfig();
     $.consensus = await Nimiq.Consensus.light(networkConfig);
     $.blockchain = $.consensus.blockchain;
@@ -157,12 +159,16 @@ function humanHashes(bytes) {
     });
 
     $.miner.on('pool-disconnected', function () {
-        let nextServer = serversSorted[currentServerIndex+1];
+        let nextServerIndex = currentServerIndex+1;
+        if(!serversSorted[nextServerIndex]){
+            nextServerIndex = 0;
+        }
+        let nextServer = serversSorted[nextServerIndex];
         if(nextServer) {
             Nimiq.Log.w(TAG, `Lost connection with ${config.poolMining.host}, switching to ${nextServer.host}`);
             config.poolMining.host = nextServer.host;
             $.miner.changeServer(config.poolMining.host, config.poolMining.port);
-            currentServerIndex++
+            currentServerIndex = nextServerIndex;
         }
     });
 
@@ -196,6 +202,7 @@ function humanHashes(bytes) {
         Nimiq.Log.i(TAG, `Block mined: #${block.header.height}, hash=${block.header.hash()}`);
     });
 
+    
     // Output regular statistics
     const hashrates = [];
     const outputInterval = 5;
