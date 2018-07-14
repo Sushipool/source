@@ -46,7 +46,17 @@ if (argv.hasOwnProperty('address')) {
     config = readFromFile(defaultConfigFile);
     if (!config) {
         Nimiq.Log.i(TAG, 'No configuration file found. Please answer the following questions:');
-        const askAddress = readlineSync.question('Enter Nimiq Wallet Address (e.g. NQXX .... ....): ');
+        const askAddress = readlineSync.question('Enter Nimiq Wallet Address (e.g. NQXX .... ....): ', {
+            limit: function (input) {
+                try {
+                    Nimiq.Address.fromUserFriendlyAddress(input);
+                } catch (err) {
+                    return false
+                }
+                return true;
+            },
+            limitMessage: '$<lastInput> is not a valid Nimiq Wallet Address'
+        });
         const askName = readlineSync.question(`Enter a name for this miner (press Enter to use ${os.hostname}): `);
         const query = `Enter the number of threads to use for mining (max ${maxThreads}): `;
         const askNumThreads = readlineSync.questionInt(query);
