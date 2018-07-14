@@ -153,7 +153,7 @@ function readFromFile(file, oldConfig = merge({}, DEFAULT_CONFIG)) {
             return merge(oldConfig, config);
         }
     } catch (e) {
-        Log.e(TAG, `Failed to read file ${file}: ${e.message}`);
+        // Log.e(TAG, `Failed to read file ${file}: ${e.message}`);
         return false;
     }
 }
