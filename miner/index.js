@@ -7,6 +7,8 @@ const Nimiq = require('@nimiq/core');
 const argv = require('minimist')(process.argv.slice(2));
 const readFromFile = require('./src/Config.js');
 const SushiPoolMiner = require('./src/SushiPoolMiner.js');
+let Finder = require('./src/ServerFinder.js');
+const ServerFinder = new Finder();
 const readlineSync = require('readline-sync');
 var fs = require('fs');
 const pjson = require('./package.json');
@@ -18,8 +20,7 @@ const defaultConfigFile = 'sushipool.conf';
 
 const servers = [
     'eu.sushipool.com',
-    'us-east.sushipool.com',
-    'us-west.sushipool.com',
+    'us.sushipool.com',
     'asia.sushipool.com',
     'aus.sushipool.com'
 ];
@@ -31,12 +32,10 @@ if (argv.hasOwnProperty('address')) {
     Nimiq.Log.i(TAG, 'Reading config from argv');
     const askAddress = argv['address'];
     const askNumThreads = argv.hasOwnProperty('threads') ? argv['threads'] : maxThreads;
-    const askPoolHost = argv.hasOwnProperty('server') ? argv['server'] : servers[0];
     const askName = argv.hasOwnProperty('name') ? argv['name'] : '';
     const ask = {
         address: askAddress,
         threads: askNumThreads,
-        server: askPoolHost,
         name: askName
     };
     const data = JSON.stringify(ask, null, 4);
@@ -51,12 +50,9 @@ if (argv.hasOwnProperty('address')) {
         const askName = readlineSync.question(`Enter a name for this miner (press Enter to use ${os.hostname}): `);
         const query = `Enter the number of threads to use for mining (max ${maxThreads}): `;
         const askNumThreads = readlineSync.questionInt(query);
-        const options = {guide: false, cancel: false};
-        const askPoolHost = readlineSync.keyInSelect(servers, 'Select a Sushi Server:', options);
         const ask = {
             address: askAddress,
             threads: askNumThreads,
-            server: servers[askPoolHost],
             name: askName
         };
         const data = JSON.stringify(ask, null, 4);
@@ -64,6 +60,8 @@ if (argv.hasOwnProperty('address')) {
         config = readFromFile(defaultConfigFile);
     }
 }
+
+
 
 config = Object.assign(config, argv);
 config.poolMining.enabled = true;
@@ -76,7 +74,7 @@ if (argv.hasOwnProperty('test')){
 } else {
     config.network = 'main';
 }
-config.poolMining.host = config.server;
+
 if(config.hasOwnProperty('threads')){
     config.miner.threads = config.threads;
     delete config.threads;
@@ -100,6 +98,18 @@ function humanHashes(bytes) {
     return bytes.toFixed(1)+' '+units[u];
 }
 (async () => {
+    //fs.writeFileSync(defaultConfigFile, data);
+    let currentServerIndex = 0;
+
+    Nimiq.Log.i(TAG, `Finding closest server.`);
+    const serversSorted = await ServerFinder.findClosestServers(servers, config.poolMining.port);
+    const closestServer = serversSorted[0];
+    if(!config.server) {
+        config.server = closestServer.host;
+        Nimiq.Log.i(TAG, `Closest server: ${config.server}`);
+    }
+    config.poolMining.host = config.server;
+
     const deviceName = config.name || os.hostname();
     Nimiq.Log.i(TAG, `Sushipool Miner ${pjson.version} starting`);
     Nimiq.Log.i(TAG, `- network          = ${config.network}`);
@@ -110,6 +120,7 @@ function humanHashes(bytes) {
     Nimiq.Log.i(TAG, `Please wait while we establish consensus.`);
 
     Nimiq.GenesisConfig.init(Nimiq.GenesisConfig.CONFIGS[config.network]);
+    Nimiq.GenesisConfig.SEED_PEERS.push(Nimiq.WssPeerAddress.seed('seed1.sushipool.com', 8443));
     const networkConfig = new Nimiq.DumbNetworkConfig();
     $.consensus = await Nimiq.Consensus.light(networkConfig);
     $.blockchain = $.consensus.blockchain;
@@ -147,6 +158,20 @@ function humanHashes(bytes) {
         $.miner.connect(config.poolMining.host, config.poolMining.port);
     });
 
+    $.miner.on('pool-disconnected', function () {
+        let nextServerIndex = currentServerIndex+1;
+        if(!serversSorted[nextServerIndex]){
+            nextServerIndex = 0;
+        }
+        let nextServer = serversSorted[nextServerIndex];
+        if(nextServer) {
+            Nimiq.Log.w(TAG, `Lost connection with ${config.poolMining.host}, switching to ${nextServer.host}`);
+            config.poolMining.host = nextServer.host;
+            $.miner.changeServer(config.poolMining.host, config.poolMining.port);
+            currentServerIndex = nextServerIndex;
+        }
+    });
+
     $.blockchain.on('head-changed', (head) => {
         if ($.consensus.established || head.height % 100 === 0) {
             Nimiq.Log.i(TAG, `Now at block: ${head.height}`);
@@ -177,6 +202,7 @@ function humanHashes(bytes) {
         Nimiq.Log.i(TAG, `Block mined: #${block.header.height}, hash=${block.header.hash()}`);
     });
 
+    
     // Output regular statistics
     const hashrates = [];
     const outputInterval = 5;

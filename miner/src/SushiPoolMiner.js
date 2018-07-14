@@ -29,6 +29,15 @@ class SushiPoolMiner extends BasePoolMiner {
      * @private
      */
     async _onBlockMined(block, fullValid) {
+        const readyState = this._ws.readyState;
+        if (readyState === 3) {
+            Nimiq.Log.w(SushiPoolMiner, `Incorrect websocket state detected! Reconnecting`);
+            this._exponentialBackoffReconnect = 0;
+            this._timeoutReconnect();
+            return;
+        } else {
+            Nimiq.Log.i(SushiPoolMiner, `Still connected to pool`);
+        }
         this._send({
             message: 'share',
             blockHeader: BufferUtils.toBase64(block.header.serialize()),
@@ -36,21 +45,33 @@ class SushiPoolMiner extends BasePoolMiner {
             extraDataProof: BufferUtils.toBase64((await MerklePath.compute(block.body.getMerkleLeafs(), block.body.extraData)).serialize()),
             block: fullValid ? BufferUtils.toBase64(block.serialize()) : undefined
         });
-        Nimiq.Log.i(SushiPoolMiner, `Still connected to pool`);
     }
 
     _register() {
         const deviceName = this._deviceName || '';
-        Nimiq.Log.i(SushiPoolMiner, `Registering to pool using device id ${this._deviceId} (${deviceName}) as a smart client.`);
+        Nimiq.Log.i(SushiPoolMiner, `Registering to pool (${this._host}) using device id ${this._deviceId} (${deviceName}) as a smart client.`);
         this._send({
             message: 'register',
-            mode: this.mode,
+            mode: this.mode || 'smart',
             address: this._ourAddress.toUserFriendlyAddress(),
             deviceId: this._deviceId,
             startDifficulty: this._startDifficulty,
             deviceName: deviceName,
             genesisHash: BufferUtils.toBase64(GenesisConfig.GENESIS_HASH.serialize())
         });
+    }
+
+    _onClose(ws, e) {
+        if (ws === this._ws) {
+            this._changeConnectionState(BasePoolMiner.ConnectionState.CLOSED);
+            this.fire('pool-disconnected');
+        }
+    }
+
+    changeServer(server, port) {
+        Nimiq.Log.w(SushiPoolMiner, `Switching to ${server}:${port}`);
+        this.disconnect();
+        this.connect(server,port);
     }
 }
 
