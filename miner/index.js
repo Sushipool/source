@@ -163,11 +163,6 @@ function humanHashes(bytes) {
     const startDifficulty = config.startDifficulty || 1;
     $.miner = new SushiPoolMiner('smart', $.blockchain, $.accounts, $.mempool, $.network.time, $.wallet.address, deviceId, deviceName, startDifficulty);
 
-    $.consensus.on('established', () => {
-        Nimiq.Log.i(TAG, `Connecting to pool ${config.poolMining.host} using device id ${deviceId} as a smart client.`);
-        $.miner.connect(config.poolMining.host, config.poolMining.port);
-    });
-
     $.miner.on('pool-disconnected', function () {
         let nextServerIndex = currentServerIndex+1;
         if(!serversSorted[nextServerIndex]){
@@ -197,13 +192,20 @@ function humanHashes(bytes) {
     });
 
     $.network.connect();
-    $.consensus.on('established', () => $.miner.startWork());
     $.consensus.on('lost', () => $.miner.stopWork());
     if (typeof config.miner.threads === 'number') {
         $.miner.threads = config.miner.threads;
     }
 
     $.consensus.on('established', () => {
+        Nimiq.Log.i(TAG, `Connecting to pool ${config.poolMining.host} using device id ${deviceId} as a smart client.`);
+        try {
+            $.miner.connect(config.poolMining.host, config.poolMining.port);            
+        } catch (err) {
+            $.miner.disconnect()
+            $.miner.connect(config.poolMining.host, config.poolMining.port);                        
+        }
+        $.miner.startWork();        
         Nimiq.Log.i(TAG, `Blockchain consensus established in ${(Date.now() - START) / 1000}s.`);
         Nimiq.Log.i(TAG, `Current state: height=${$.blockchain.height}, totalWork=${$.blockchain.totalWork}, headHash=${$.blockchain.headHash}`);
     });
