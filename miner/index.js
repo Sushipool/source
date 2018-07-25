@@ -130,7 +130,7 @@ function humanHashes(bytes) {
     Nimiq.Log.i(TAG, `Please wait while we establish consensus.`);
 
     Nimiq.GenesisConfig.init(Nimiq.GenesisConfig.CONFIGS[config.network]);
-    Nimiq.GenesisConfig.SEED_PEERS.push(Nimiq.WssPeerAddress.seed('seed1.sushipool.com', 8443));
+    Nimiq.GenesisConfig.SEED_PEERS.push(Nimiq.WssPeerAddress.seed('seed1.sushipool.com', 443));
     const networkConfig = new Nimiq.DumbNetworkConfig();
     $.consensus = await Nimiq.Consensus.light(networkConfig);
     $.blockchain = $.consensus.blockchain;
