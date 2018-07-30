@@ -36,6 +36,12 @@ else
 fi
 yarn
 
+# apply temporary WSL workaround, see https://github.com/nimiq-network/core/issues/387
+if grep -q Microsoft /proc/version; then
+    echo 'WSL detected, applying workaround.'
+    sed -i 's/dist\/lmdb.js/dist\/leveldb.js/' node_modules/@nimiq/jungle-db/package.json
+fi
+
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 echo 'startup_message off' >> ~/.screenrc
