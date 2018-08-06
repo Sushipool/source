@@ -57,9 +57,9 @@ if (argv.hasOwnProperty('address')) {
             },
             limitMessage: '$<lastInput> is not a valid Nimiq Wallet Address'
         });
-        const askName = readlineSync.question(`Enter a name for this miner (press Enter to use ${os.hostname}): `);
+        const askName = argv.hasOwnProperty('name') ? argv['name'] : readlineSync.question(`Enter a name for this miner (press Enter to use ${os.hostname}): `);
         const query = `Enter the number of threads to use for mining (max ${maxThreads}): `;
-        const askNumThreads = readlineSync.questionInt(query);
+        const askNumThreads = argv.hasOwnProperty('threads') ? argv['threads'] : readlineSync.questionInt(query);
         const ask = {
             address: askAddress,
             threads: askNumThreads,
@@ -233,3 +233,4 @@ function humanHashes(bytes) {
     console.error(e);
     process.exit(1);
 });
+
