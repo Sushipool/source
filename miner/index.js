@@ -22,7 +22,8 @@ const servers = [
     'eu.sushipool.com',
     'us.sushipool.com',
     'asia.sushipool.com',
-    'aus.sushipool.com'
+    'aus.sushipool.com',
+    'sh.sushipool.com'
 ];
 const poolPort = 443;
 
