@@ -94,7 +94,7 @@ if (typeof config.miner.threads !== 'number' && config.miner.threads !== 'auto')
     Nimiq.Log.e(TAG, 'Specify a valid thread number');
     process.exit(1);
 }
-
+const customSeedServers = config.seeds || argv.seeds;
 function humanHashes(bytes) {
     let thresh = 1000;
     if(Math.abs(bytes) < thresh) {
@@ -132,6 +132,17 @@ function humanHashes(bytes) {
 
     Nimiq.GenesisConfig.init(Nimiq.GenesisConfig.CONFIGS[config.network]);
     Nimiq.GenesisConfig.SEED_PEERS.push(Nimiq.WssPeerAddress.seed('seed1.sushipool.com', 443));
+    if(customSeedServers){
+        Nimiq.Log.i(TAG, `Setting custom seed servers`);
+        while(Nimiq.GenesisConfig.SEED_PEERS.length !== 0){
+            Nimiq.GenesisConfig.SEED_PEERS.pop();
+        }
+        let list = customSeedServers.split(',');
+        for(let s of list){
+            let seedData = s.split(':');
+            Nimiq.GenesisConfig.SEED_PEERS.push(Nimiq.WssPeerAddress.seed(seedData[0], parseInt(seedData[1])));
+        }
+    }
     const networkConfig = new Nimiq.DumbNetworkConfig();
     $.consensus = await Nimiq.Consensus.light(networkConfig);
     $.blockchain = $.consensus.blockchain;
