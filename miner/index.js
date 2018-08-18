@@ -27,7 +27,7 @@ const servers = [
 ];
 const poolPort = 443;
 
-Nimiq.Log.instance.level = 'info';
+Nimiq.Log.instance.level = 'debug';
 
 if (argv.hasOwnProperty('address')) {
     Nimiq.Log.i(TAG, 'Reading config from argv');
@@ -224,7 +224,7 @@ function humanHashes(bytes) {
         Nimiq.Log.i(TAG, `Block mined: #${block.header.height}, hash=${block.header.hash()}`);
     });
 
-    
+
     // Output regular statistics
     const hashrates = [];
     const outputInterval = 5;
@@ -245,4 +245,3 @@ function humanHashes(bytes) {
     console.error(e);
     process.exit(1);
 });
-
