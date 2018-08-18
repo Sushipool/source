@@ -71,12 +71,14 @@
             "cflags_c": [
                 "-std=c99",
                 "-march=sandybridge",
-                "-O3"
+                "-O3",
+                "-mavx"
             ],
             "xcode_settings": {
                 "OTHER_CFLAGS": [
                     "-march=sandybridge",
-                    "-O3"
+                    "-O3",
+                    "-mavx"
                 ]
             }
         },
@@ -112,12 +114,14 @@
             "cflags_c": [
                 "-std=c99",
                 "-march=ivybridge",
-                "-O3"
+                "-O3",
+                "-mavx"
             ],
             "xcode_settings": {
                 "OTHER_CFLAGS": [
                     "-march=ivybridge",
-                    "-O3"
+                    "-O3",
+                    "-mavx"
                 ]
             }
         },
@@ -153,12 +157,14 @@
             "cflags_c": [
                 "-std=c99",
                 "-march=haswell",
-                "-O3"
+                "-O3",
+                "-mavx2"
             ],
             "xcode_settings": {
                 "OTHER_CFLAGS": [
                     "-march=haswell",
-                    "-O3"
+                    "-O3",
+                    "-mavx2"
                 ]
             }
         },
@@ -194,12 +200,14 @@
             "cflags_c": [
                 "-std=c99",
                 "-march=broadwell",
-                "-O3"
+                "-O3",
+                "-mavx2"
             ],
             "xcode_settings": {
                 "OTHER_CFLAGS": [
                     "-march=broadwell",
-                    "-O3"
+                    "-O3",
+                    "-mavx2"
                 ]
             }
         },
@@ -235,12 +243,14 @@
             "cflags_c": [
                 "-std=c99",
                 "-march=skylake",
-                "-O3"
+                "-O3",
+                "-mavx2"
             ],
             "xcode_settings": {
                 "OTHER_CFLAGS": [
                     "-march=skylake",
-                    "-O3"
+                    "-O3",
+                    "-mavx2"
                 ]
             }
         },
@@ -276,7 +286,8 @@
             "cflags_c": [
                 "-std=c99",
                 "-march=skylake-avx512",
-                "-O3"
+                "-O3",
+                "-mavx512cd"
             ],
             "xcode_settings": {
                 "OTHER_CFLAGS": [
@@ -317,12 +328,14 @@
             "cflags_c": [
                 "-std=c99",
                 "-march=znver1",
-                "-O3"
+                "-O3",
+                "-mavx2"
             ],
             "xcode_settings": {
                 "OTHER_CFLAGS": [
                     "-march=znver1",
-                    "-O3"
+                    "-O3",
+                    "-mavx2"
                 ]
             }
         },
