@@ -41,6 +41,7 @@ declare -a arr=("generic"
                 "broadwell"
                 "ivybridge"
                 "sandybridge"
+                "haswell"
                 "skylake"
                 "skylake_avx512"
                 "znver1"      # https://wiki.gentoo.org/wiki/Ryzen
