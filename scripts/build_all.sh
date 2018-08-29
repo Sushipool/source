@@ -37,14 +37,10 @@ npm rebuild
 # - https://askubuntu.com/questions/1039244/how-do-i-use-the-latest-gcc-on-ubuntu-ubuntu-18-04-gcc-8-1
 # - https://askubuntu.com/questions/1028601/install-gcc-8-only-on-ubuntu-18-04
 cd ../scripts
-declare -a arr=("generic"
-                "broadwell"
-                "ivybridge"
-                "sandybridge"
-                "haswell"
-                "skylake"
-                "skylake_avx512"
-                "znver1"      # https://wiki.gentoo.org/wiki/Ryzen
+declare -a arr=("compat"
+                "sse2"
+                "avx2"
+                "avx512f"
                 )
 for i in "${arr[@]}"
 do
