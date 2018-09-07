@@ -13,6 +13,7 @@ const TAG = 'Config';
  * @property {{seed: string, address: string}} wallet
  * @property {int} threads
  * @property {string} address
+ * @property {boolean} debug
  */
 
 const DEFAULT_CONFIG = /** @type {Config} */ {
