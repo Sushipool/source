@@ -1,0 +1,6 @@
+image: sushipool/build-image
+
+build:
+  script:
+    - cd scripts
+    - ./build_all.sh
