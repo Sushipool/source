@@ -119,7 +119,7 @@ function humanHashes(bytes) {
     Nimiq.Log.i(TAG, `Finding closest server.`);
     const serversSorted = await ServerFinder.findClosestServers(servers, config.poolMining.port);
     const closestServer = serversSorted[0];
-    if(!config.server) {
+    if(!config.server || config.server === 'auto') {
         config.server = closestServer.host;
         Nimiq.Log.i(TAG, `Closest server: ${config.server}`);
     }
