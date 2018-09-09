@@ -22,12 +22,12 @@ const servers = [
     'eu.sushipool.com',
     'us.sushipool.com',
     'asia.sushipool.com',
-    'aus.sushipool.com',
-    'sh.sushipool.com'
+    'aus.sushipool.com'
 ];
 const poolPort = 443;
 
-Nimiq.Log.instance.level = 'debug';
+Nimiq.Log.instance.level = 'info';
+
 
 if (argv.hasOwnProperty('address')) {
     Nimiq.Log.i(TAG, 'Reading config from argv');
@@ -79,6 +79,10 @@ config.poolMining.enabled = true;
 config.poolMining.port = poolPort;
 config.miner.enabled = true;
 
+if(config.hasOwnProperty('debug')){
+    Nimiq.Log.instance.level = 'debug';
+}
+
 if (argv.hasOwnProperty('test')){
     Nimiq.Log.w('----- YOU ARE CONNECTING TO TESTNET -----');
     config.network = 'test';
@@ -115,7 +119,7 @@ function humanHashes(bytes) {
     Nimiq.Log.i(TAG, `Finding closest server.`);
     const serversSorted = await ServerFinder.findClosestServers(servers, config.poolMining.port);
     const closestServer = serversSorted[0];
-    if(!config.server) {
+    if(!config.server || config.server === 'auto') {
         config.server = closestServer.host;
         Nimiq.Log.i(TAG, `Closest server: ${config.server}`);
     }
@@ -128,6 +132,9 @@ function humanHashes(bytes) {
     Nimiq.Log.i(TAG, `- pool server      = ${config.poolMining.host}:${config.poolMining.port}`);
     Nimiq.Log.i(TAG, `- address          = ${config.address}`);
     Nimiq.Log.i(TAG, `- device name      = ${deviceName}`);
+    if( Nimiq.Log.instance.level === 3){
+        Nimiq.Log.w(TAG, `Debug mode has been enabled.`);
+    }
     Nimiq.Log.i(TAG, `Please wait while we establish consensus.`);
 
     Nimiq.GenesisConfig.init(Nimiq.GenesisConfig.CONFIGS[config.network]);
