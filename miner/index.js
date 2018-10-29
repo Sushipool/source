@@ -21,8 +21,6 @@ const defaultConfigFile = 'sushipool.conf';
 let servers = [
     'eu.sushipool.com',
     'us.sushipool.com',
-    'asia.sushipool.com',
-    'aus.sushipool.com'
 ];
 const poolPort = 443;
 
