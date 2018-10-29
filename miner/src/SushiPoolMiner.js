@@ -21,6 +21,7 @@ class SushiPoolMiner extends BasePoolMiner {
         this._deviceName = deviceName;
         this.on('share', (block, fullValid) => this._onBlockMined(block, fullValid));
         this._startDifficulty = startDifficulty;
+
     }
 
     /**
@@ -60,9 +61,12 @@ class SushiPoolMiner extends BasePoolMiner {
             genesisHash: BufferUtils.toBase64(GenesisConfig.GENESIS_HASH.serialize())
         });
     }
-
+    _onNewPoolSettings(address, extraData, targetCompact, nonce) {
+        Nimiq.Log.i(SushiPoolMiner, 'Received pool settings');
+        this.fire('pool-connected');
+        super._onNewPoolSettings(address, extraData, targetCompact, nonce);
+    }
     _onError(ws, e) {
-        console.error(e)
         if (ws === this._ws) {
             this._changeConnectionState(BasePoolMiner.ConnectionState.CLOSED);
             this.fire('pool-disconnected');

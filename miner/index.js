@@ -18,7 +18,7 @@ const TAG = 'SushiPool';
 const $ = {};
 const defaultConfigFile = 'sushipool.conf';
 
-const servers = [
+let servers = [
     'eu.sushipool.com',
     'us.sushipool.com',
     'asia.sushipool.com',
@@ -85,6 +85,7 @@ if(config.hasOwnProperty('debug')){
 
 if (argv.hasOwnProperty('test')){
     Nimiq.Log.w('----- YOU ARE CONNECTING TO TESTNET -----');
+    servers = ['testnet.sushipool.com'];
     config.network = 'test';
 } else {
     config.network = 'main';
@@ -187,18 +188,30 @@ function humanHashes(bytes) {
         $.miner.connect(config.poolMining.host, config.poolMining.port);
     });
 
+    let timeout;
     $.miner.on('pool-disconnected', function () {
+        if(timeout){
+            return;
+        }
+
         let nextServerIndex = currentServerIndex+1;
+        timeout = Math.floor(Math.random() * 25) + 5;
         if(!serversSorted[nextServerIndex]){
             nextServerIndex = 0;
         }
         let nextServer = serversSorted[nextServerIndex];
+        Nimiq.Log.w(TAG, `Lost connection with ${config.poolMining.host}, switching to ${nextServer.host}. Reconnecting in ${timeout} seconds`);
         if(nextServer) {
-            Nimiq.Log.w(TAG, `Lost connection with ${config.poolMining.host}, switching to ${nextServer.host}`);
-            config.poolMining.host = nextServer.host;
-            $.miner.changeServer(config.poolMining.host, config.poolMining.port);
-            currentServerIndex = nextServerIndex;
+           timeout = setTimeout(function () {
+               config.poolMining.host = nextServer.host;
+               $.miner.changeServer(config.poolMining.host, config.poolMining.port);
+               currentServerIndex = nextServerIndex;
+               timeout = false;
+           }, (timeout * 1000));
         }
+    });
+    $.miner.on('pool-connected', function () {
+        timeout = false;
     });
 
     $.blockchain.on('head-changed', (head) => {
