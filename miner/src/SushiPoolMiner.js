@@ -66,6 +66,7 @@ class SushiPoolMiner extends BasePoolMiner {
         super._onNewPoolSettings(address, extraData, targetCompact, nonce);
     }
     _onError(ws, e) {
+        console.log(e);
         if (ws === this._ws) {
             this._changeConnectionState(BasePoolMiner.ConnectionState.CLOSED);
             this.fire('pool-disconnected');
