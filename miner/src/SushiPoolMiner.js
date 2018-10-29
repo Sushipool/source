@@ -62,7 +62,6 @@ class SushiPoolMiner extends BasePoolMiner {
         });
     }
     _onNewPoolSettings(address, extraData, targetCompact, nonce) {
-        Nimiq.Log.i(SushiPoolMiner, 'Received pool settings');
         this.fire('pool-connected');
         super._onNewPoolSettings(address, extraData, targetCompact, nonce);
     }
