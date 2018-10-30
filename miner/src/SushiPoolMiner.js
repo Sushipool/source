@@ -6,6 +6,7 @@ const GenesisConfig = Nimiq.GenesisConfig;
 
 class SushiPoolMiner extends BasePoolMiner {
     /**
+     * @param {string} mode
      * @param {BaseChain} blockchain
      * @param {Accounts} accounts
      * @param {Mempool} mempool
@@ -64,6 +65,7 @@ class SushiPoolMiner extends BasePoolMiner {
             genesisHash: BufferUtils.toBase64(GenesisConfig.GENESIS_HASH.serialize())
         });
     }
+
     _onNewPoolSettings(address, extraData, targetCompact, nonce) {
         this.fire('pool-connected');
         super._onNewPoolSettings(address, extraData, targetCompact, nonce);
