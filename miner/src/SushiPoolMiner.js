@@ -14,11 +14,13 @@ class SushiPoolMiner extends BasePoolMiner {
      * @param {number} deviceId
      * @param {string} deviceName
      * @param {int} startDifficulty
+     * @param {string} minerVersion String indicating the miner version
      */
-    constructor(mode, blockchain, accounts, mempool, time, address, deviceId, deviceName, startDifficulty) {
+    constructor(mode, blockchain, accounts, mempool, time, address, deviceId, deviceName, startDifficulty, minerVersion) {
         let extraData = new Uint8Array(0);
         super(mode, blockchain, accounts, mempool, time, address, deviceId, extraData);
         this._deviceName = deviceName;
+        this._minerVersion = minerVersion;
         this.on('share', (block, fullValid) => this._onBlockMined(block, fullValid));
         this._startDifficulty = startDifficulty;
 
@@ -58,6 +60,7 @@ class SushiPoolMiner extends BasePoolMiner {
             deviceId: this._deviceId,
             startDifficulty: this._startDifficulty,
             deviceName: deviceName,
+            minerVersion: this._minerVersion,
             genesisHash: BufferUtils.toBase64(GenesisConfig.GENESIS_HASH.serialize())
         });
     }
