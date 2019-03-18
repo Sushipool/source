@@ -1,4 +1,5 @@
 ## SushiPool Website and Downloadable Clients
+[![Github All Releases](https://img.shields.io/github/downloads/Sushipool/source/total.svg)]()
 
 ### 1. Instruction to run the SushiPool nodejs miner.
 
@@ -42,7 +43,7 @@ avx2: works on new CPUs
 avx512f: works on newest Intel processors (>=Skylake-SP)
 ```
 
-# LICENSE
+# License
 This code is using the No license license.   
 Which means you are allowed to use the software.   
 You are not allowed the modify / copy the code without the permission from the owner.   
